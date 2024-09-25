@@ -1,0 +1,27 @@
+.header-div{
+    max-width: 1156px;
+    min-width: 780px;
+    margin : 8px auto;
+    padding-bottom: 8px;
+    position: relative;
+    text-align: center;
+
+    border-bottom: 2px solid #171D1C;
+    box-shadow: 0px 3px 2px -3px;
+}
+.header-title{
+    text-decoration: none;
+    color:#171D1C;
+    font-size: 48px;
+    -webkit-text-stroke: 4px rgba(100,100,100,0.5);
+}
+
+.header-user-div{
+    color:#171D1C;
+    text-decoration: none;
+    font-size: 22px;
+    -webkit-text-stroke: 2px rgba(77,77,77,0.6);
+    position: absolute;
+    right: 12px;
+    bottom: 16px;
+}

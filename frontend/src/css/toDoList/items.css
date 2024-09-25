@@ -1,0 +1,46 @@
+
+.to-do-list-header{
+    padding: 16px 24px;
+    height: 72px;
+}
+.header-bottom-line{
+    border-bottom: 2px solid #171D1C;
+    box-shadow: 0 3px 2px -3px;
+}
+
+.header-day{
+    font-size: 20px;
+}
+
+.header-row{
+    position: relative;
+}
+
+.header-date{
+    display: inline-block;
+    padding:6px 2px;
+    font-size: 48px;
+}
+.header-month-year{
+    box-sizing: border-box;
+    display: inline-block;
+    height: 56px;
+    font-size: 18px;
+    padding: 0 16px;
+}
+
+
+#add-to-do-header {
+    background-color: rgba(255, 255, 255, 0);
+    border: none;
+    position: absolute;
+    right: 24px;
+    bottom : 14px;
+}
+#add-to-do-header img{
+    width: 32px;
+}
+#add-to-do-header div{
+    font-family: Jua;
+    font-size: 14px;;
+}
