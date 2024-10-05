@@ -6,8 +6,16 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository
-        extends JpaRepository<UserEntity,Long>,UserQueryDSL{
-    UserEntity findByLoginId(String id);
-    UserEntity findByEmail(String email);
-    UserEntity findByNickname(String nickname);
+        extends JpaRepository<UserEntity,Long> {
+
+
+    boolean existsByLoginId(String loginId);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByNickname(String nickname);
+    boolean existsByLoginIdOrEmailOrNickname(String loginId, String email, String nickname);
+
+    UserEntity findByLoginId(String loginId);
+
 }

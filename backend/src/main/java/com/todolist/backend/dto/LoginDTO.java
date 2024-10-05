@@ -1,5 +1,6 @@
 package com.todolist.backend.dto;
 
+
 import lombok.*;
 
 @Getter
@@ -7,9 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SignUpDTO {
+public class LoginDTO {
     private String loginId;
     private String password;
-    private String email;
-    private String nickname;
 }

@@ -40,4 +40,10 @@ public class SignUpController {
         }
     }
 
+    /** 트랜잭션의 가호 아래에서 한번 더 중복 체크 후 insert도 시킬 것 */
+    @PostMapping("/signup-check")
+    public String signupCheck(@RequestBody SignUpDTO dto) {
+        return userService.signupCheck(dto);
+    }
+
 }
