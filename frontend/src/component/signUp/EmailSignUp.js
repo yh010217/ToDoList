@@ -1,9 +1,8 @@
-import {useState} from "react";
+import React,{useState} from "react";
 import axios from "axios";
 
-export default function EmailSignUp() {
+const EmailSignUp = React.memo(({email,setEmail,setEmailAble})=> {
 
-    const [email, setEmail] = useState('');
     const [emailValid, setEmailValid] = useState(false);
     const [emailDupCheck, setEmailDupCheck] = useState('unknown');
 
@@ -17,8 +16,10 @@ export default function EmailSignUp() {
                 if (res.status === 200) {
                     if (res.data === 'able') {
                         setEmailDupCheck('able')
+                        setEmailAble(true);
                     } else {
                         setEmailDupCheck('disable');
+                        setEmailAble(false);
                     }
                 }
             })
@@ -41,6 +42,7 @@ export default function EmailSignUp() {
         setEmail(input);
         setEmailDupCheck('unknown');
         validateEmail(input);
+        setEmailAble(false);
     }
     return (
         <li className={'signup-content'}>
@@ -51,7 +53,7 @@ export default function EmailSignUp() {
                            onChange={handleChange}/>
                 </div>
                 <button className={'input-check'}
-                        onClick={emailCheck}>중복 확인
+                        onClick={emailCheck} type={"button"}>중복 확인
                 </button>
             </div>
             <div className={'signup-content-valid'}>
@@ -65,4 +67,6 @@ export default function EmailSignUp() {
             </div>
         </li>
     )
-}
+});
+
+export default EmailSignUp

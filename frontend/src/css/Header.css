@@ -1,7 +1,7 @@
 .header-div{
     max-width: 1156px;
     min-width: 780px;
-    margin : 8px auto;
+    margin : 8px auto 128px;
     padding-bottom: 8px;
     position: relative;
     text-align: center;
@@ -18,10 +18,49 @@
 
 .header-user-div{
     color:#171D1C;
+    font-family: Jua;
     text-decoration: none;
     font-size: 22px;
     -webkit-text-stroke: 2px rgba(77,77,77,0.6);
     position: absolute;
     right: 12px;
-    bottom: 16px;
+    bottom: 10px;
+    border: none;
+    background-color: rgba(0,0,0,0);
+    cursor: pointer;
 }
+
+.header-login-list{
+    box-sizing: border-box;
+    width: 104px;
+    list-style: none;
+    padding: 1px 8px;
+    border: 2px solid rgba(0,0,0,0.7);
+    border-radius: 6px;
+    position: absolute;
+    right: 4px;
+    bottom:-116px;
+}
+
+.header-login-list li{
+    border-bottom: 2px solid rgba(0,0,0,0.7);
+    padding: 4px 0 3px;
+}
+.header-login-list li:nth-last-child(1){
+    border-bottom: none;
+}
+.header-login-list button{
+    padding: 0;
+    font-size: 20px;
+    border: none;
+    font-family: Jua;
+    background-color: rgba(0,0,0,0);
+    cursor: pointer;
+}
+
+.header-login-list a{
+    color: #171D1C;
+    text-decoration: none;
+    font-size: 20px;
+}
+

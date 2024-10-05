@@ -1,9 +1,7 @@
 import axios from "axios";
-import {useState} from "react";
+import React,{useState} from "react";
 
-export default function IdSignUp() {
-
-    const [loginId, setLoginId] = useState('');
+const IdSignUp = React.memo(({loginId,setLoginId,setIdAble})=>{
 
     const [idValid, setIdValid] = useState(false);
     const [idDupCheck, setIdDupCheck] = useState('unknown');
@@ -16,9 +14,11 @@ export default function IdSignUp() {
             }).then(res => {
                 if (res.status === 200) {
                     if (res.data === 'able') {
-                        setIdDupCheck('able')
+                        setIdDupCheck('able');
+                        setIdAble(true);
                     } else {
                         setIdDupCheck('disable');
+                        setIdAble(false);
                     }
                 }
             })
@@ -39,6 +39,7 @@ export default function IdSignUp() {
         setLoginId(input);
         setIdDupCheck('unknown');
         validateId(input);
+        setIdAble(false);
     }
 
     return (
@@ -46,11 +47,11 @@ export default function IdSignUp() {
             <div className={'signup-content-row'}>
                 <div className={'signup-content-label'}>아이디</div>
                 <div className={'signup-content-input'}>
-                    <input name={'loginId'} type="text" className={'custom-input'} maxLength={16}
+                    <input name={'loginId'} value={loginId} type="text" className={'custom-input'} maxLength={16}
                            placeholder={'영문(소), 숫자, 6-16자'} onChange={handleChange}/>
                 </div>
                 <button className={'input-check'}
-                        onClick={idCheck}>중복 확인
+                        onClick={idCheck} type={"button"}>중복 확인
                 </button>
             </div>
             <div className={'signup-content-valid'}>
@@ -64,4 +65,6 @@ export default function IdSignUp() {
             </div>
         </li>
     )
-}
+});
+
+export default IdSignUp;

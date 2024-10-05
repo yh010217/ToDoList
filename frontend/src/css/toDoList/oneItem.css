@@ -1,0 +1,156 @@
+
+.plan-item{
+    height: 64px;
+    box-sizing: border-box;
+    border-bottom: 2px solid rgba(0,0,0,0.3);
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+
+    overflow-x: hidden;
+}
+
+
+.item-depth-2{
+    padding-left:48px;
+}
+.item-depth-3{
+    padding-left: 48px;
+}
+
+.children-button{
+    font-family: Jua;
+    background-color: rgba(0,0,0,0);
+    font-size: 24px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    border: none;
+    position: absolute;
+    left: 0;
+    bottom: 15px;
+    width: 28px;
+    height: 28px;
+    box-sizing: border-box;
+    z-index: 10;
+}
+.show-children{
+    display: inline-block;
+    transform: rotate(90deg);
+}
+
+.plan-left-text{
+    position:absolute;
+}
+
+.plan-title{
+    padding-left: 32px;
+    font-size: 24px;
+    padding-top : 20px;
+    display: inline-block;
+}
+.item-depth-3 .plan-title{
+    padding-left: 4px;
+}
+
+.plan-right{
+    display: flex;
+    position: relative;
+    background-color: white;
+}
+
+.plan-right div span{
+    display: inline-block;
+    width: 64px;
+    position: absolute;
+    left: 0;
+    bottom:-4px;
+}
+.plan-right button{
+    box-sizing: border-box;
+    padding : 0;
+    cursor: pointer;
+}
+
+.right-expand-button{
+    font-family: Jua;
+    background-color: rgba(0,0,0,0);
+    font-size: 20px;
+    border: none;
+    transition: transform 0.3s ease;
+    position: relative;
+    height:32px;
+    top: 16px;
+}
+.expanded{
+    transform : rotate(180deg);
+}
+
+.status-div , .cancel-button-div, .fix-button-div,
+.child-add-button-div, .delete-button-div{
+    width:64px;
+    height: 48px;
+    text-align: center;
+    position: relative;
+    top: 10px;
+}
+
+.complete-button{
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    border: 3px solid #171D1C;
+    background-color: rgba(0,0,0,0);
+    position: relative;
+}
+
+.cancel-button{
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 3px solid #171D1C;
+    background-color: rgba(0,0,0,0);
+    position: relative;
+}
+
+.fix-button , .child-add-button, .delete-button{
+    border: none;
+    background-color: rgba(0,0,0,0);
+    position: relative;
+    width: 32px;
+    height: 32px;
+}
+
+.status-complete-img{
+    width: 28px;
+    position: absolute;
+    top: 0;
+    left: -1px;
+}
+
+.status-cancel-img{
+    width: 17px;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+}
+
+
+.cancel-button img{
+    width: 24px;
+    height: 24px;
+    margin : 1px auto;
+}
+.fix-button img{
+    width:32px;
+}
+.child-add-button img{
+    width:30px;
+    position: relative;
+    top:1px;
+}
+.delete-button img{
+    width: 32px;
+    position: relative;
+    top: -2px;
+}
+

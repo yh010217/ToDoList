@@ -2,13 +2,46 @@ import '../../css/toDoList/backGround.css';
 import '../../css/toDoList/items.css';
 import '../../css/toDoList/modal.css';
 import 추가 from '../../img/추가.png'
-import {Link, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
 import ToDoModal from "./ToDoModal";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {getAuthHeader} from "../../utils/auth";
+import ToDoListItem from "./ToDoListItem";
 
 
-export default function ToDoList() {
+export default function ToDoList({stateToken, setStateToken}) {
+
+
+    const navigate = useNavigate();
+
+    const [updateTrigger, setUpdateTrigger] = useState(false);
+    const [planList,setPlanList] = useState([]);
+    const [modalType, setModalType] = useState('');
+
+    const [parentPlan,setParentPlan] = useState(0);
+
+    useEffect(() => {
+        if (getAuthHeader()) {
+            axios.get('/api/todo/list', {
+                headers: {
+                    Authorization: getAuthHeader(),
+                },
+            }).then(res => {
+                if (res.status === 200) {
+                    console.log(res.data);
+                    setPlanList(res.data);
+                }else{
+                    throw new Error('리스트 받아오기 실패')
+                }
+            }).catch(error => {console.error(error);})
+        } else {
+            alert('로그인 후 진행해 주세요');
+            localStorage.removeItem('auth');
+            setStateToken('');
+            navigate('/');
+        }
+    }, [stateToken, updateTrigger]);
 
     const params = useParams();
     //년,월,일,요일 표시
@@ -26,16 +59,9 @@ export default function ToDoList() {
     const month_arr = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
     const month_str = month_arr[month - 1];
 
-
-
-    const [modalType, setModalType] = useState('');
-
-    const modalShow = function (type){
-        setModalType(type);
-    }
     const addMainList = function () {
-        setModalType('main');
-        modalShow('main');
+        setModalType('1');
+        setParentPlan(0);
     }
 
     return (
@@ -63,11 +89,23 @@ export default function ToDoList() {
                 </div>
                 <div className={'header-bottom-line'}></div>
             </div>
+            <div className={'plan-items'}>
+            {
+                planList.map(item => (
+                    <ToDoListItem key={item.planId} planItem={item}
+                                  updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
+                                  setParentPlan={setParentPlan} setModalType={setModalType}/>
+                    )
+                )
+            }
+            </div>
 
-            <div className={'modal-container'} style={{ display : modalType === '' ? 'none' : 'block'}}>
+            <div className={'modal-container'} style={{display: modalType === '' ? 'none' : 'block'}}>
                 <ToDoModal modalType={modalType} setModalType={setModalType}
-                year={year} month={month} date={date}>
-
+                           year={year} month={month} date={date}
+                           updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
+                           parentPlan={parentPlan}
+                >
                 </ToDoModal>
             </div>
         </div>

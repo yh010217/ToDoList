@@ -1,10 +1,9 @@
-import {useState} from "react";
+import React,{useState} from "react";
 import axios from "axios";
 
-export default function NicknameSignUp() {
+const NicknameSignUp = React.memo(({nickname,setNickname,setNicknameAble}) => {
 
 
-    const [nickname, setNickname] = useState('');
     const [nicknameValid, setNicknameValid] = useState(false);
     const [nicknameDupCheck, setNicknameDupCheck] = useState('unknown');
 
@@ -18,8 +17,10 @@ export default function NicknameSignUp() {
                 if (res.status === 200) {
                     if (res.data === 'able') {
                         setNicknameDupCheck('able')
+                        setNicknameAble(true);
                     } else {
                         setNicknameDupCheck('disable');
+                        setNicknameAble(false);
                     }
                 }
             })
@@ -42,6 +43,7 @@ export default function NicknameSignUp() {
         setNickname(input);
         setNicknameDupCheck('unknown');
         validateNickname(input);
+        setNicknameAble(false);
     }
 
     return (
@@ -54,7 +56,7 @@ export default function NicknameSignUp() {
                            maxLength={12} placeholder={'영문, 숫자, 한글, 4-12자'}/>
                 </div>
                 <button className={'input-check'}
-                        onClick={nicknameCheck}>중복 확인
+                        onClick={nicknameCheck} type={"button"}>중복 확인
                 </button>
             </div>
             <div className={'signup-content-valid'}>
@@ -67,4 +69,5 @@ export default function NicknameSignUp() {
             </div>
         </li>
     )
-}
+});
+export default NicknameSignUp;

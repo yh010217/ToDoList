@@ -1,10 +1,8 @@
-import {useState} from "react";
+import React, {useState} from "react";
 
 
+const PWDSignUp = React.memo(({password, setPassword, setPwdAble}) => {
 
-export default function PWDSignUp() {
-
-    const [password, setPassword] = useState('');
     const [isValid, setIsValid] = useState(false);
 
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -28,12 +26,22 @@ export default function PWDSignUp() {
         setPassword(input);
         validatePassword(input);
         setIsMatch(input === confirmPassword);
+        if(isValid && (input === confirmPassword)) {
+            setPwdAble(true);
+        } else {
+            setPwdAble(false);
+        }
     };
 
-    const handleConfirmChange = (e)=>{
+    const handleConfirmChange = (e) => {
         const input = e.target.value;
         setConfirmPassword(input);
         setIsMatch(input === password);
+        if(isValid && (input === password)) {
+            setPwdAble(true);
+        } else {
+            setPwdAble(false);
+        }
     }
 
 
@@ -47,8 +55,8 @@ export default function PWDSignUp() {
                     </div>
                 </div>
                 <div className={'signup-content-valid'}>
-                                <span className={isValid?'valid-success':'valid-fail'}>
-                                    {isValid?'적절한 비밀번호':'6~20글자, 대문자, 소문자, 숫자 포함'}
+                                <span className={isValid ? 'valid-success' : 'valid-fail'}>
+                                    {isValid ? '적절한 비밀번호' : '6-20자, 대,소문자, 숫자 포함'}
                                 </span>
                 </div>
             </li>
@@ -61,12 +69,13 @@ export default function PWDSignUp() {
                     </div>
                 </div>
                 <div className={'signup-content-valid'}>
-                                <span className={isMatch && isValid?'valid-success':'valid-fail'}>
-                                    {!isValid? '비밀번호를 다시 확인하세요':
-                                    isMatch?'비밀번호 확인 완료':'비밀번호가 동일하지 않습니다.'}
+                                <span className={isMatch && isValid ? 'valid-success' : 'valid-fail'}>
+                                    {!isValid ? '비밀번호를 다시 확인하세요' :
+                                        isMatch ? '비밀번호 확인 완료' : '비밀번호가 동일하지 않습니다.'}
                                 </span>
                 </div>
             </li>
         </>
     )
-}
+});
+export default PWDSignUp;
