@@ -1,41 +1,44 @@
 import '../css/Header.css'
 import {Link, useNavigate} from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import Logout from "./Logout";
+import {getAuthHeader} from "../utils/auth";
+import {HeaderContext} from "../context/HeaderContext";
 
-export default function Header({stateToken, setStateToken}) {
+export default function Header() {
 
+    const {headerUpdate,setHeaderUpdate} = useContext(HeaderContext);
 
     const navigate = useNavigate();  // 페이지 이동을 위해 사용
 
     const [loginNickname, setLoginNickname] = useState('');
-    const [loginList,setLoginList] = useState('none');
+    const [loginList, setLoginList] = useState('none');
 
     useEffect(() => {
-        const auth = localStorage.getItem('auth');
+        const headerFunction = async () => {
+            const auth = await getAuthHeader();
+            console.log('useEffect에서 auth : ');
+            console.log(auth);
 
-        if (auth && auth.startsWith("Bearer ")) {
-            const token = localStorage.getItem('auth').split(' ')[1];
-            const decodedToken = jwtDecode(token);
+            if (auth && auth.startsWith("Bearer ")) {
+                const token = auth.split(' ')[1];
+                const decodedToken = jwtDecode(token);
 
-            // 만료됐을때...?
-            if (decodedToken.exp * 1000 < Date.now()) {
-                //jwt 재발급 받는 로직
-                //setStateToken(newToken); -> jwt 일관성 유지?
-            } else {
                 setLoginNickname(decodedToken.nickname);
+
+            } else {
+                setLoginNickname('');
             }
-        } else {
-            setLoginNickname('');
         }
-    }, [stateToken]);
+        headerFunction();
+    }, [headerUpdate]);
 
     const userClick = function () {
         if (loginNickname !== '') {
-            if(loginList === 'none'){
+            if (loginList === 'none') {
                 setLoginList('block');
-            }else{
+            } else {
                 setLoginList('none');
             }
         } else {
@@ -49,7 +52,7 @@ export default function Header({stateToken, setStateToken}) {
                 {loginNickname !== '' ? loginNickname : '로그인'}
             </button>
             <ul className={'header-login-list'}
-            style={{display : loginList}}>
+                style={{display: loginList}}>
                 <li>
                     <Link to={'/my-page'}>마이페이지</Link>
                 </li>
@@ -57,8 +60,8 @@ export default function Header({stateToken, setStateToken}) {
                     <Link to={'/setting'}>환경설정</Link>
                 </li>
                 <li>
-                    <Logout setStateToken={setStateToken}
-                    setLoginList={setLoginList}>로그아웃</Logout>
+                    <Logout setHeaderUpdate={setHeaderUpdate} headerUpdate={headerUpdate}
+                            setLoginList={setLoginList}>로그아웃</Logout>
                 </li>
             </ul>
         </div>

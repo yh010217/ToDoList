@@ -21,6 +21,10 @@ public class JWTUtil {
                         Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
+    public String getCategory(String token){
+        return Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token).getPayload().get("category",String.class);
+    }
     public Long getUid(String token){
         return Jwts.parser().verifyWith(secretKey).build()
                 .parseSignedClaims(token).getPayload().get("uid",Long.class);
@@ -43,11 +47,22 @@ public class JWTUtil {
                 .parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createJwt(Long uid, String loginId, String nickname,String role,Long expiredMs){
+    public String createAccessJwt(Long uid, String loginId, String nickname, String role, Long expiredMs){
         return Jwts.builder()
+                .claim("category","access")
                 .claim("uid",uid)
                 .claim("loginId",loginId)
                 .claim("nickname",nickname)
+                .claim("role",role)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .signWith(secretKey)
+                .compact();
+    }
+    public String createRefreshJwt(Long uid, String role, Long expiredMs){
+        return Jwts.builder()
+                .claim("category","refresh")
+                .claim("uid",uid)
                 .claim("role",role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
