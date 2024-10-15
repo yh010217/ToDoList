@@ -1,10 +1,12 @@
 import {Link, useNavigate} from "react-router-dom";
 import '../css/login.css'
 import axios from "axios";
-import {useState} from "react";
+import {useState,useContext} from "react";
+import {HeaderContext} from "../context/HeaderContext";
 
-export default function LogIn({setStateToken}) {
+export default function LogIn() {
 
+    const {headerUpdate,setHeaderUpdate} = useContext(HeaderContext);
 
     const navigate = useNavigate();  // 페이지 이동을 위해 사용
 
@@ -23,7 +25,7 @@ export default function LogIn({setStateToken}) {
                 if(res.headers['authorization'] !== null &&
                 res.headers['authorization'].startsWith('Bearer')){
                     localStorage.setItem('auth',res.headers['authorization']);
-                    setStateToken(res.headers['authorization']);
+                    setHeaderUpdate(!headerUpdate);
                     navigate('/');
                 }else{
                     throw new Error('로그인 에러');

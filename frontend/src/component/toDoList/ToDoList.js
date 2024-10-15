@@ -6,42 +6,55 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
 import ToDoModal from "./ToDoModal";
 import {useEffect, useState} from "react";
-import {getAuthHeader} from "../../utils/auth";
+import {getAuthHeader, getNewToken} from "../../utils/auth";
 import ToDoListItem from "./ToDoListItem";
 
 
-export default function ToDoList({stateToken, setStateToken}) {
+export default function ToDoList() {
 
 
     const navigate = useNavigate();
 
     const [updateTrigger, setUpdateTrigger] = useState(false);
-    const [planList,setPlanList] = useState([]);
+    const [planList, setPlanList] = useState([]);
     const [modalType, setModalType] = useState('');
 
-    const [parentPlan,setParentPlan] = useState(0);
+    const [childrenUpdateFunc, setChildrenUpdateFunc] = useState(()=>()=>{});
+
+    const [parentPlan, setParentPlan] = useState(0);
 
     useEffect(() => {
-        if (getAuthHeader()) {
-            axios.get('/api/todo/list', {
-                headers: {
-                    Authorization: getAuthHeader(),
-                },
-            }).then(res => {
-                if (res.status === 200) {
-                    console.log(res.data);
-                    setPlanList(res.data);
-                }else{
-                    throw new Error('리스트 받아오기 실패')
-                }
-            }).catch(error => {console.error(error);})
-        } else {
-            alert('로그인 후 진행해 주세요');
-            localStorage.removeItem('auth');
-            setStateToken('');
-            navigate('/');
+
+        const authHeaderFunc = async () => {
+            const authHeader = await getAuthHeader();
+
+            if (authHeader) {
+
+                localStorage.setItem('auth', authHeader);
+
+                axios.get('/api/todo/list', {
+                    headers: {
+                        Authorization: authHeader,
+                    },
+                }).then(res => {
+                    if (res.status === 200) {
+                        console.log(res.data);
+                        setPlanList(res.data);
+                    } else {
+                        throw new Error('리스트 받아오기 실패')
+                    }
+                }).catch(error => {
+                    console.error(error);
+                })
+            } else {
+                alert('로그인 후 진행해 주세요');
+                localStorage.removeItem('auth');
+                navigate('/');
+            }
+
         }
-    }, [stateToken, updateTrigger]);
+        authHeaderFunc();
+    }, [updateTrigger]);
 
     const params = useParams();
     //년,월,일,요일 표시
@@ -62,7 +75,9 @@ export default function ToDoList({stateToken, setStateToken}) {
     const addMainList = function () {
         setModalType('1');
         setParentPlan(0);
+        setChildrenUpdateFunc(()=>()=>{});
     }
+
 
     return (
         <div className={"white-paper"}>
@@ -90,21 +105,23 @@ export default function ToDoList({stateToken, setStateToken}) {
                 <div className={'header-bottom-line'}></div>
             </div>
             <div className={'plan-items'}>
-            {
-                planList.map(item => (
-                    <ToDoListItem key={item.planId} planItem={item}
-                                  updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
-                                  setParentPlan={setParentPlan} setModalType={setModalType}/>
+                {
+                    planList.map(item => (
+                            <ToDoListItem key={item.planId} planItem={item}
+                                          updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
+                                          setParentPlan={setParentPlan} setModalType={setModalType}
+                                          setChildrenUpdateFunc={setChildrenUpdateFunc}
+                            />
+                        )
                     )
-                )
-            }
+                }
             </div>
 
             <div className={'modal-container'} style={{display: modalType === '' ? 'none' : 'block'}}>
                 <ToDoModal modalType={modalType} setModalType={setModalType}
                            year={year} month={month} date={date}
                            updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
-                           parentPlan={parentPlan}
+                           parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
                 >
                 </ToDoModal>
             </div>

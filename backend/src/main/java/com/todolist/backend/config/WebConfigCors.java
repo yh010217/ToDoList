@@ -11,14 +11,10 @@ public class WebConfigCors implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 .allowedOrigins("http://localhost:3000")
                 .allowedOrigins("http://localhost")
+                .allowedOrigins("http://frontend")
                 .allowedMethods("GET","POST","PUT","DELETE")
                 .allowCredentials(true);
 
-        registry.addMapping("/api/sign-up/id-check")
-                .allowedOrigins("http://localhost:3000")
-                .allowedOrigins("http://localhost")
-                .allowedMethods("GET","POST","PUT","DELETE")
-                .allowCredentials(true);
 
     }
 }

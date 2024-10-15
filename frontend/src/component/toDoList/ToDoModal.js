@@ -75,9 +75,10 @@ export default function ToDoModal(props) {
         e.target.style.height = 'auto'; //height 초기화
         e.target.style.height = e.target.scrollHeight + 4 + 'px';
     }
-    const todoAdd = () => {
+    const todoAdd = async () => {
         const postDeadline = new Date(parseInt(year),parseInt(month)-1
             ,parseInt(date),parseInt(hour),parseInt(minute));
+        const authHeader = await getAuthHeader();
         axios.post('/api/todo/add', {
             title : title
             ,deadline : postDeadline.toISOString()
@@ -87,13 +88,22 @@ export default function ToDoModal(props) {
             ,parentPlanId : props.parentPlan
         },{
             headers: {
-                Authorization: getAuthHeader(),
+                Authorization: authHeader,
             },
         }).then(res=>{
             console.log(res);
             if(res.status === 200){
                 //투두리스트 업데이트 하라고..
-                props.setUpdateTrigger(!props.updateTrigger);
+                if(modalType === '1'){
+                    //depth 1짜리 추가할 때는 그냥 한번 추가만 해주면 됨
+                    props.setUpdateTrigger(!props.updateTrigger);
+                }else{
+                    // depth 2,3인 리스트를 추가할 때에는,
+                    // 닫혀있었으면 펼치고
+                    // parent의 아가들을 다시 불러와야함.
+                    props.childrenUpdateFunc();
+                }
+
             }//뭐... else면 오류 한번 띄워야겠지만... 일단 뭐..
         }).finally(()=>{
             modalClose();
