@@ -5,38 +5,53 @@ import xMark from '../../img/x.png';
 import memoMark from '../../img/메모.png';
 import addMark from '../../img/추가.png';
 import deleteMark from '../../img/삭제.png';
-import axios from "axios";
+import axios, {get} from "axios";
 import {getAuthHeader} from "../../utils/auth";
 
 
-export default function ToDoListItem({planItem, setParentPlan, setModalType
-                                         ,updateTrigger,setUpdateTrigger}) {
+export default function ToDoListItem({
+                                         planItem, setParentPlan, setModalType
+                                         , updateTrigger, setUpdateTrigger
+                                         , setChildrenUpdateFunc
+                                         , parentChildren
+                                     }) {
     //setModalType으로 depth도 정할거임
 
     const [planStatus, setPlanStatus] = useState(planItem.status);
     const [childrenOpen, setChildrenOpen] = useState(false);
     const [childrenItems, setChildrenItems] = useState([]);
 
-    const showChildren = () => {
+    const toggleChildren = async () => {
         setChildrenOpen(!childrenOpen);
         if (childrenOpen) {
             setChildrenItems([]);
         } else {
-            axios.get('/api/todo/get-children/' + planItem.planId, {
-                headers: {
-                    Authorization: getAuthHeader(),
-                },
-            }).then(res => {
-                if (res.status === 200) {
-                    setChildrenItems(res.data);
-                } else {
-                    throw new Error('리스트 받아오기 실패')
-                }
-            }).catch(error => {
-                console.error(error);
-            })
+            await childrenAxios();
         }
     };
+
+    const openChildren = async () => {
+        setChildrenOpen(true);
+        await childrenAxios();
+    };
+
+    const childrenAxios = async () => {
+
+        const authHeader = await getAuthHeader();
+        axios.get('/api/todo/get-children/' + planItem.planId, {
+            headers: {
+                Authorization: authHeader,
+            },
+        }).then(res => {
+            if (res.status === 200) {
+                setChildrenItems(res.data);
+            } else {
+                throw new Error('리스트 받아오기 실패')
+            }
+        }).catch(error => {
+            console.error(error);
+        })
+    }
 
     const itemRightRef = useRef();
     const statusRef = useRef();
@@ -65,14 +80,15 @@ export default function ToDoListItem({planItem, setParentPlan, setModalType
         setRightExpand(!rightExpand);
     }
 
-    const statusChange = (changeStatus) => {
+    const statusChange = async (changeStatus) => {
+        const authHeader = await getAuthHeader();
         axios.post('/api/todo/change-status'
             , {
                 planId: planItem.planId.toString()
                 , status: changeStatus
             }, {
                 headers: {
-                    Authorization: getAuthHeader(),
+                    Authorization: authHeader,
                 },
             }).then(res => {
             if (res.status === 200) {
@@ -88,30 +104,38 @@ export default function ToDoListItem({planItem, setParentPlan, setModalType
         let changeStatus = planStatus === 2 ? 0 : 2;
         statusChange(changeStatus);
     }
-    const addChild = () => {
+    const addChild = async () => {
+        await openChildren();
         setModalType(planItem.depth + 1 + '');
         setParentPlan(planItem.planId);
+        setChildrenUpdateFunc(() => childrenAxios);
     }
-    const itemDelete = () =>{
-        axios.delete('/api/todo/delete/'+planItem.planId,{
+    const itemDelete = async () => {
+        const authHeader = await getAuthHeader();
+        axios.delete('/api/todo/delete/' + planItem.planId, {
             headers: {
-                Authorization: getAuthHeader(),
+                Authorization: authHeader,
             }
-        }).then(res=>{
-            if(res.status === 200){
-                setUpdateTrigger(!updateTrigger);
+        }).then(res => {
+            if (res.status === 200) {
+                if(planItem.depth===1){
+                    setUpdateTrigger(!updateTrigger);
+                }else{
+                    parentChildren();
+                }
+
             }
         })
     }
 
     return (
-        <div className={'item-depth-'+planItem.depth}>
+        <div className={'item-depth-' + planItem.depth}>
             <div className={'plan-item'}>
 
                 <div className={'plan-left'}>
                     {planItem.depth === 3 ? '' :
                         <button className={(childrenOpen ? 'show-children' : 'close-children') + ' children-button'}
-                                onClick={showChildren}>&gt;</button>
+                                onClick={toggleChildren}>&gt;</button>
                     }
                     <div className={'plan-left-text'}>
                         <span className={'plan-title'}>{planItem.title}</span>
@@ -197,7 +221,10 @@ export default function ToDoListItem({planItem, setParentPlan, setModalType
                     childrenItems.map(item =>
                         <ToDoListItem key={item.planId} planItem={item}
                                       setParentPlan={setParentPlan} setModalType={setModalType}
-                        updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}/>)
+                                      updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
+                                      setChildrenUpdateFunc={setChildrenUpdateFunc}
+                                      parentChildren={openChildren}
+                        />)
                 }
             </div>
         </div>

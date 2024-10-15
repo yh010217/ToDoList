@@ -16,14 +16,16 @@ export default function ToDoList() {
     const navigate = useNavigate();
 
     const [updateTrigger, setUpdateTrigger] = useState(false);
-    const [planList,setPlanList] = useState([]);
+    const [planList, setPlanList] = useState([]);
     const [modalType, setModalType] = useState('');
 
-    const [parentPlan,setParentPlan] = useState(0);
+    const [childrenUpdateFunc, setChildrenUpdateFunc] = useState(()=>()=>{});
+
+    const [parentPlan, setParentPlan] = useState(0);
 
     useEffect(() => {
 
-        const authHeaderFunc = async () =>{
+        const authHeaderFunc = async () => {
             const authHeader = await getAuthHeader();
 
             if (authHeader) {
@@ -38,7 +40,7 @@ export default function ToDoList() {
                     if (res.status === 200) {
                         console.log(res.data);
                         setPlanList(res.data);
-                    }else{
+                    } else {
                         throw new Error('리스트 받아오기 실패')
                     }
                 }).catch(error => {
@@ -73,7 +75,9 @@ export default function ToDoList() {
     const addMainList = function () {
         setModalType('1');
         setParentPlan(0);
+        setChildrenUpdateFunc(()=>()=>{});
     }
+
 
     return (
         <div className={"white-paper"}>
@@ -101,21 +105,23 @@ export default function ToDoList() {
                 <div className={'header-bottom-line'}></div>
             </div>
             <div className={'plan-items'}>
-            {
-                planList.map(item => (
-                    <ToDoListItem key={item.planId} planItem={item}
-                                  updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
-                                  setParentPlan={setParentPlan} setModalType={setModalType}/>
+                {
+                    planList.map(item => (
+                            <ToDoListItem key={item.planId} planItem={item}
+                                          updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
+                                          setParentPlan={setParentPlan} setModalType={setModalType}
+                                          setChildrenUpdateFunc={setChildrenUpdateFunc}
+                            />
+                        )
                     )
-                )
-            }
+                }
             </div>
 
             <div className={'modal-container'} style={{display: modalType === '' ? 'none' : 'block'}}>
                 <ToDoModal modalType={modalType} setModalType={setModalType}
                            year={year} month={month} date={date}
                            updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
-                           parentPlan={parentPlan}
+                           parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
                 >
                 </ToDoModal>
             </div>
