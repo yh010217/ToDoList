@@ -23,13 +23,17 @@ public class PlanClassesEntity {
     @JoinColumn(name = "class_id")
     private PlanClassEntity planClass;
 
+    @Column(name = "class_name")
+    private String className;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
     private PlanEntity plan;
 
     @Builder
-    public PlanClassesEntity(PlanClassEntity planClass, PlanEntity plan) {
+    public PlanClassesEntity(PlanClassEntity planClass, PlanEntity plan, String className) {
         this.planClass = planClass;
         this.plan = plan;
+        this.className = className;
     }
 }

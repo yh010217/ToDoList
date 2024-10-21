@@ -5,7 +5,7 @@ import xMark from '../../img/x.png';
 import memoMark from '../../img/메모.png';
 import addMark from '../../img/추가.png';
 import deleteMark from '../../img/삭제.png';
-import axios, {get} from "axios";
+import axios from "axios";
 import {getAuthHeader} from "../../utils/auth";
 
 
@@ -13,10 +13,11 @@ export default function ToDoListItem({
                                          planItem, setParentPlan, setModalType
                                          , updateTrigger, setUpdateTrigger
                                          , setChildrenUpdateFunc
-                                         , parentChildren
+                                         , parentChildren, setDetailPlan
+                                         , setMyLineUpdateFunc, parentChildrenFunc
+                                         , listOption, listSort, ascDesc
                                      }) {
     //setModalType으로 depth도 정할거임
-
     const [planStatus, setPlanStatus] = useState(planItem.status);
     const [childrenOpen, setChildrenOpen] = useState(false);
     const [childrenItems, setChildrenItems] = useState([]);
@@ -35,14 +36,18 @@ export default function ToDoListItem({
         await childrenAxios();
     };
 
+
     const childrenAxios = async () => {
 
         const authHeader = await getAuthHeader();
-        axios.get('/api/todo/get-children/' + planItem.planId, {
+        axios.get('/api/todo/get-children/' + planItem.planId
+        +'/' + listOption + '/'
+        + listSort + '/' + ascDesc, {
             headers: {
                 Authorization: authHeader,
             },
-        }).then(res => {
+        }
+    ).then(res => {
             if (res.status === 200) {
                 setChildrenItems(res.data);
             } else {
@@ -79,6 +84,13 @@ export default function ToDoListItem({
     const expandRight = () => {
         setRightExpand(!rightExpand);
     }
+
+    useEffect(()=>{
+        parentChildrenFunc();
+        if(planItem.depth === 1){
+            setUpdateTrigger(!updateTrigger);
+        }
+    },[listOption, listSort, ascDesc, planStatus])
 
     const statusChange = async (changeStatus) => {
         const authHeader = await getAuthHeader();
@@ -118,14 +130,25 @@ export default function ToDoListItem({
             }
         }).then(res => {
             if (res.status === 200) {
-                if(planItem.depth===1){
+                if (planItem.depth === 1) {
                     setUpdateTrigger(!updateTrigger);
-                }else{
+                } else {
                     parentChildren();
                 }
 
             }
         })
+    }
+
+    function getDetail() {
+        setModalType('detail');
+        setDetailPlan(planItem.planId);
+        // 어차피 depth 1은 parentChildrenFunc를 그냥 전체 update로 해놨음
+        if (planItem.depth === 1) {
+            setMyLineUpdateFunc(parentChildrenFunc)
+        } else {
+            setMyLineUpdateFunc(() => parentChildrenFunc);
+        }
     }
 
     return (
@@ -183,12 +206,12 @@ export default function ToDoListItem({
                         </div>
                     }
                     <div className={'fix-button-div'}>
-                        <button className={'fix-button'}>
+                        <button className={'fix-button'} onClick={getDetail}>
                             <img src={memoMark} alt="fix"/>
                         </button>
                         <br/>
                         <span className={'plan-fix-text'}>
-                        수정
+                        상세정보
                     </span>
                     </div>
                     {planItem.depth === 3 ? '' :
@@ -224,6 +247,12 @@ export default function ToDoListItem({
                                       updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
                                       setChildrenUpdateFunc={setChildrenUpdateFunc}
                                       parentChildren={openChildren}
+                                      setDetailPlan={setDetailPlan}
+                                      setMyLineUpdateFunc={setMyLineUpdateFunc}
+                                      parentChildrenFunc={childrenAxios}
+                                      listOption={listOption}
+                                      listSort={listSort}
+                                      ascDesc={ascDesc}
                         />)
                 }
             </div>

@@ -7,7 +7,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class GetUserBySecurityContext {
     public static Long getUid(){
-        System.out.println("getUid");
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();

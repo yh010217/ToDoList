@@ -32,39 +32,62 @@ public class ToDoListController {
     }
 
     //후에 페이징, 조건식은 할수도
-    @GetMapping("/list")
-    public List<ToDoListDTO> getToDoList(){
+    @GetMapping("/list/{option}/{sort}/{asc}")
+    public List<ToDoListDTO> getToDoList(@PathVariable("option") String option
+            , @PathVariable("sort") String sort, @PathVariable("asc") String asc) {
 
         Long uid = GetUserBySecurityContext.getUid();
-        List<ToDoListDTO> toDoList = toDoListService.getToDoList(uid);
+        //List<ToDoListDTO> toDoList = toDoListService.getToDoList(uid);
+        List<ToDoListDTO> toDoList = toDoListService.getToDoList(uid, option, sort, asc);
         return toDoList;
     }
 
-    @GetMapping("/get-children/{parent-plan}")
-    public List<ToDoListDTO> getChild(@PathVariable("parent-plan") Long parentPlanId){
+    @GetMapping("/get-children/{parent-plan}/{option}/{sort}/{asc}")
+    public List<ToDoListDTO> getChild(@PathVariable("parent-plan") Long parentPlanId
+            , @PathVariable("option") String option
+            , @PathVariable("sort") String sort, @PathVariable("asc") String asc) {
 
         Long uid = GetUserBySecurityContext.getUid();
-        List<ToDoListDTO> toDoList = toDoListService.getChildren(uid,parentPlanId);
+        //List<ToDoListDTO> toDoList = toDoListService.getChildren(uid, parentPlanId);
+        List<ToDoListDTO> toDoList
+                = toDoListService.getChildren(uid, parentPlanId,option, sort, asc);
         return toDoList;
     }
 
     @PostMapping("/change-status")
-    public String changeStatus(@RequestBody Map<String, Object> requestBody){
+    public String changeStatus(@RequestBody Map<String, Object> requestBody) {
 
         Long uid = GetUserBySecurityContext.getUid();
         String planIdStr = (String) requestBody.get("planId");
         Long planId = Long.parseLong(planIdStr);
         Integer changeStatus = (Integer) requestBody.get("status");
-        String complete = toDoListService.changeStatus(uid,planId,changeStatus);
+        String complete = toDoListService.changeStatus(uid, planId, changeStatus);
         return complete;
     }
 
     @DeleteMapping("/delete/{plan-id}")
-    public String deletePlan(@PathVariable("plan-id") Long planId){
+    public String deletePlan(@PathVariable("plan-id") Long planId) {
 
         Long uid = GetUserBySecurityContext.getUid();
-        String complete = toDoListService.deletePlan(planId,uid);
+        String complete = toDoListService.deletePlan(planId, uid);
         return complete;
+    }
+
+    @GetMapping("/detail/{planId}")
+    public ToDoListDTO getToDoDetail(@PathVariable("planId") Long planId) {
+        Long uid = GetUserBySecurityContext.getUid();
+        ToDoListDTO toDoDetail = toDoListService.getToDoDetail(uid, planId);
+        return toDoDetail;
+    }
+
+    @PostMapping("/modify")
+    public String modifyToDoList(@RequestBody ToDoListDTO dto) {
+        dto.setDeadline(dto.getDeadline().plusHours(9l));
+
+        Long uid = GetUserBySecurityContext.getUid();
+        String modifyResult = toDoListService.modifyToDoList(dto, uid);
+
+        return modifyResult;
     }
 
 }
