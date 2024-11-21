@@ -23,7 +23,7 @@ jobs:
 
       - name: 테스트 및 빌드하기
         run: |
-          cd /backend
+          cd backend
           chmod +x ./gradlew
           ./gradlew clean build
 
