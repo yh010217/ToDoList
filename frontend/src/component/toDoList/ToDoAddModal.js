@@ -1,10 +1,10 @@
 import '../../css/toDoList/modal.css';
 import x표시 from '../../img/x.png'
-import {useEffect, useRef, useState} from "react";
+import {useRef, useState} from "react";
 import axios from "axios";
 import {getAuthHeader} from "../../utils/auth";
 
-export default function ToDoModal(props) {
+export default function ToDoAddModal(props) {
 
     //'', '1', '2', '3' 중 하나 ('' 는 그냥 modal이 안보이는거임)
     //나중에 item에서 추가할 때는 modalType이 2,3이어야 함
@@ -56,8 +56,8 @@ export default function ToDoModal(props) {
         setClassType(input);
     }
     const classAdd = () => {
-        //비지 않아야 추가할거임
-        if (classType && classType !== '') {
+        //비지 않아야 추가할거임, 이미 있는 거는 더 추가 안함
+        if (classType && classType !== '' && !classes.includes(classType)) {
             setClasses([...classes, classType]);
             classTypeRef.current.value = '';
             setClassType('');

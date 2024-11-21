@@ -249,3 +249,20 @@
 .modal-button-right{
     background-color: #24BDF9;
 }
+
+.to-do-memo-detail{
+    text-align: left;
+}
+.modal-detail-status-div{
+    display: flex;
+    justify-content: space-around;
+}
+.black-text{
+    color: #171D1C;
+}
+.gray-text{
+    color: #bbbbbb;
+}
+.text-center{
+    text-align: center;
+}

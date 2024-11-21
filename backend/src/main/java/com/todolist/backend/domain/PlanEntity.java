@@ -29,7 +29,7 @@ public class PlanEntity {
     @Column(name="plan_title",nullable = false)
     private String planTitle;
 
-    /** 0 미완료, 1 완료, 2 취소, 3삭제 추후 enum 타입으로 바꾸자*/
+    /** 0 미완료, 1 완료, 2 종료, 3삭제 추후 enum 타입으로 바꾸자*/
     @Column
     private Integer status = 0;// 기본값
 

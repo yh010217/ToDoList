@@ -1,0 +1,110 @@
+
+.select-boxes{
+    padding-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+.select-right{
+    padding-right: 32px;
+}
+.select-box{
+    display: inline-block;
+    margin-right: 24px;
+}
+
+.select-label{
+
+    padding-top: 6px;
+    box-sizing: border-box;
+    font-size: 20px;
+    margin-right: 12px;
+}
+.select-box-div{
+    display: inline-block;
+    width: 144px;
+    position: relative;
+}
+
+.selected-item-div{
+    padding-top: 5px;
+    box-sizing: border-box;
+    display: inline-block;
+    width: 144px;
+    background-color: white;
+    font-family: Jua;
+    text-align: center;
+    box-shadow: 2px 2px 4px 0 rgba(0,0,0,0.25);
+    border-radius: 6px;
+    font-size: 20px;
+    height:32px;
+    cursor: pointer;
+    border: 1px solid silver;
+}
+
+.select-box-div ul{
+    position: absolute;
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid silver;
+    border-radius: 6px;
+    box-shadow: 2px 2px 4px 0 rgba(0,0,0,0.25);
+    text-align: center;
+    margin: 0;
+    z-index: 30;
+    background-color: white;
+
+    max-height: 120px;
+    overflow-y: scroll;
+}
+
+.select-box-div ul::-webkit-scrollbar {
+    width: 8px;  /* 세로축 스크롤바 폭 너비 */
+}
+.select-box-div ul::-webkit-scrollbar-thumb {
+
+    background: #24BDF9; /* 스크롤바 막대 색상 */
+    border: 2px solid #24BDF9; /* 스크롤바 막대 테두리 설정  */
+    border-radius: 6px;
+}
+
+.select-box-div .select-button{
+    cursor: pointer;
+    background-color: rgba(0,0,0,0);
+    font-family: Jua;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    width: 100%;
+    border: none;
+    font-size: 20px;
+    border-radius: 6px;
+}
+
+.sort-img-button{
+    background-color: rgba(0,0,0,0);
+    border: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    height: 32px;
+    position: absolute;
+}
+
+.sort-img-button img{
+
+    box-sizing: border-box;
+    width: 24px;
+    height: 24px;
+    margin-top:4px;
+    transition: transform 0.3s linear;
+}
+
+.sort-asc{
+    transform: rotate(-90deg);
+}
+
+.sort-desc{
+    transform: rotate(90deg);
+}
+
