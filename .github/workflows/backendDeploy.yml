@@ -23,11 +23,11 @@ jobs:
 
       - name: 테스트 및 빌드하기
         run: |
-          chmod +x ./gradlew
+          chmod +x ./backend/gradlew
           ./gradlew clean build
 
       - name: 빌드된 파일 이름 변경하기
-        run: mv ./build/libs/*SNAPSHOT.jar ./project.jar
+        run: mv ./backend/build/libs/*SNAPSHOT.jar ./project.jar
 
       - name: Get Actions IP - 이 IP로 EC2 보안그룹 임시 변경
         id: ip
