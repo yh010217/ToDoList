@@ -14,6 +14,7 @@ import java.util.Set;
 @Transactional
 public class RepositoryTest {
 
+/*
     @Autowired
     private PlanClassRepository planClassRepository;
 
@@ -31,5 +32,6 @@ public class RepositoryTest {
         System.out.println("=============================");
         System.out.println("=============================");
     }
+*/
 
 }
