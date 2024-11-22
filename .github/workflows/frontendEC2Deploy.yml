@@ -67,6 +67,7 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           script: |
+            sudo chmod -R 777 /var/www/react-app
             rm -rf /var/www/react-app
             mkdir /var/www/react-app
             mv /home/ubuntu/project/frontTemp/* /var/www/react-app/
