@@ -8,12 +8,12 @@ import com.todolist.backend.dto.ToDoListDTO;
 import com.todolist.backend.repository.planClass.PlanClassRepository;
 import com.todolist.backend.repository.plan.PlanClassesRepository;
 import com.todolist.backend.repository.plan.PlanRepository;
+import jakarta.persistence.EntityExistsException;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -97,6 +97,7 @@ public class ToDoListServiceImpl implements ToDoListService {
                     .concat(savedNewClassList.stream(), alreadyExistClassList.stream())
                     .map(item -> PlanClassesEntity.builder()
                             .planClass(item)
+                            .className(item.getClassName())
                             .plan(planEntity)
                             .build())
                     .toList();
@@ -105,6 +106,7 @@ public class ToDoListServiceImpl implements ToDoListService {
 
             return "complete";
         } catch (Exception exception) {
+            System.out.println(exception);
             return "fail";
         }
     }
@@ -158,6 +160,21 @@ public class ToDoListServiceImpl implements ToDoListService {
     }
 
     @Override
+    public List<ToDoListDTO> getToDoList(Long uid, String option, String sort, String asc) {
+
+        UserEntity tempUser = new UserEntity();
+        tempUser.setUid(uid);
+
+        List<PlanEntity> usersPlan = planRepository.getToDoListByCondition(tempUser, 1, null, option, sort, asc);
+
+        List<ToDoListDTO> toDoList = usersPlan.stream()
+                .map(planEntityToTDLTypeMap::map)
+                .toList();
+
+        return toDoList;
+    }
+
+    @Override
     public List<ToDoListDTO> getChildren(Long uid, Long parentPlanId) {
 
         UserEntity tempUser = new UserEntity();
@@ -176,17 +193,170 @@ public class ToDoListServiceImpl implements ToDoListService {
     }
 
     @Override
+    public List<ToDoListDTO> getChildren(Long uid, Long parentPlanId, String option, String sort, String asc) {
+
+        UserEntity tempUser = new UserEntity();
+        tempUser.setUid(uid);
+
+        PlanEntity parentPlan = planRepository.findById(parentPlanId).orElse(null);
+        Integer parentDepth = parentPlan.getDepth();
+
+        List<PlanEntity> usersPlan = planRepository.getToDoListByCondition(tempUser, parentDepth + 1, parentPlan,option,sort,asc);
+
+        List<ToDoListDTO> toDoList = usersPlan.stream()
+                .map(planEntityToTDLTypeMap::map)
+                .toList();
+
+        return toDoList;
+    }
+
+    @Override
     public String deletePlan(Long planId, Long uid) {
 
         UserEntity tempUser = new UserEntity();
         tempUser.setUid(uid);
         //그냥... 최소한의 보안정도...? 바로 deleteBy 해도 되긴 했겠지만...?
         PlanEntity planEntity = planRepository.findById(planId).orElse(null);
-        if(planEntity != null && planEntity.getUser().getUid().equals(uid)){
+        if (planEntity != null && planEntity.getUser().getUid().equals(uid)) {
             planRepository.delete(planEntity);
             return "complete";
         }
         return "fail";
+    }
+
+    @Override
+    public ToDoListDTO getToDoDetail(Long uid, Long planId) {
+        PlanEntity planEntity = planRepository.findById(planId).orElseThrow(EntityExistsException::new);
+        ToDoListDTO toDoDetail = planEntityToTDLTypeMap.map(planEntity);
+
+        List<String> classes = planClassesRepository.findByPlan(planEntity)
+                .stream()
+                .map(item -> item.getClassName())
+                .toList();
+        toDoDetail.setClasses(classes);
+        return toDoDetail;
+    }
+
+    @Override
+    @Transactional
+    public String modifyToDoList(ToDoListDTO dto, Long uid) {
+        try {
+
+            PlanEntity planEntity = planRepository.findById(dto.getPlanId()).orElseThrow(RuntimeException::new);
+            if(!planEntity.getPlanTitle().equals(dto.getTitle())){
+                planEntity.setPlanTitle(dto.getTitle());
+            }
+            if(!planEntity.getDeadline().equals(dto.getDeadline())){
+                planEntity.setDeadline(dto.getDeadline());
+            }
+            if(!planEntity.getMemo().equals(dto.getMemo())){
+                planEntity.setMemo(dto.getMemo());
+            }
+
+            planRepository.save(planEntity);
+
+            UserEntity user = planEntity.getUser();
+
+            if (!user.getUid().equals(uid)) {
+                throw new RuntimeException();
+            }
+
+            // 한 유저가 가지고 있는 class들.
+            // 너무 많아져서 받아오기 힘들어지면 나중에 사이즈 제한 둘듯
+            Set<PlanClassEntity> userClassSet = planClassRepository.findByUser(user);
+
+            Set<String> classNameSet = userClassSet.stream()
+                    .map(PlanClassEntity::getClassName)
+                    .collect(Collectors.toSet());
+
+            //dto 에서 감지 안된건 classes에서 없에야되기도 함
+            deleteClasses(dto,planEntity);
+
+
+            // 없었던 plan_class들 insert 처리 하고, 리스트 정리 안해도 됨. 어차피 넣을거 밑에서 했음
+            saveNewClassList(user, dto, classNameSet);
+
+
+            // 지금은 투두리스트 modify 중이니까 이중에 원래 plan_classes에 들어있던 친구도 있을거임. 걔네 치움
+            List<PlanClassEntity> toInsertIntoClasses = getToInsertIntoClasses(dto, planEntity);
+
+            //그냥 합친 것. 두개 합치고, 합친것들은 PlanClassEntity 객체일테니 PlanClasses형식으로 바꿔줘야함
+            List<PlanClassesEntity> toInsertClasses = toInsertIntoClasses.stream()
+                    .map(item -> PlanClassesEntity.builder()
+                            .planClass(item)
+                            .className(item.getClassName())
+                            .plan(planEntity)
+                            .build())
+                    .toList();
+
+            planClassesRepository.saveAll(toInsertClasses);
+
+            return "complete";
+        } catch (Exception exception) {
+            return "fail";
+        }
+    }
+
+    private void deleteClasses(ToDoListDTO dto, PlanEntity planEntity) {
+        List<PlanClassesEntity> thisPlanClassesList = planClassesRepository.findByPlan(planEntity);
+        List<PlanClassesEntity> toDeleteList = new ArrayList<>();
+
+        List<String> dtoClasses = dto.getClasses();
+        for(PlanClassesEntity item : thisPlanClassesList){
+            boolean find = false;
+            for(String dtoClass : dtoClasses){
+                if(dtoClass.equals(item.getClassName())){
+                    find = true;
+                    break;
+                }
+            }
+            if(!find){
+                toDeleteList.add(item);
+            }
+        }
+
+        planClassesRepository.deleteAll(toDeleteList);
+
+    }
+
+    /** 여기선 classes에만 넣을 거 생각하면 됨 */
+    private List<PlanClassEntity> getToInsertIntoClasses(ToDoListDTO dto, PlanEntity planEntity) {
+
+        List<PlanClassesEntity> planClassesList = planClassesRepository.findByPlan(planEntity);
+
+        List<String> dtoClasses = dto.getClasses();
+
+        List<String> insertListStr = dtoClasses.stream()
+                .filter(item -> {
+                    boolean insert = true;
+                    for (PlanClassesEntity planClasses : planClassesList) {
+                        // 이미 있으니 classes 에는 안넣어도 됨
+                        if (planClasses.getClassName().equals(item)) {
+                            insert = false;
+                            break;
+                        }
+                    }
+                    return insert;
+                }).toList();
+
+
+        Set<PlanClassEntity> userClassSet = planClassRepository.findByUser(planEntity.getUser());
+
+        List<PlanClassEntity> toInsertIntoClasses = insertListStr.stream()
+                .map(item -> {
+                    PlanClassEntity planClass = null;
+                    Iterator<PlanClassEntity> userClassIter = userClassSet.iterator();
+                    // class 의 set에서 이름 같은거 가져오기 (지금 class_id를 위해 이러고 있는거임... ㅋ)
+                    while (userClassIter.hasNext()) {
+                        PlanClassEntity nextClass = userClassIter.next();
+                        if (nextClass.getClassName().equals(item)){
+                            planClass = nextClass;
+                            break;
+                        }
+                    }
+                    return planClass;
+                }).toList();
+        return toInsertIntoClasses;
     }
 
 

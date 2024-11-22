@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface PlanQueryDSL {
     List<PlanEntity> getToDoList(UserEntity tempUser, Integer depth, PlanEntity parentPlan);
+
+    List<PlanEntity> getToDoListByCondition(UserEntity tempUser, int depth, PlanEntity parentPlan, String option, String sort, String asc);
 }

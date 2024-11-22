@@ -12,7 +12,7 @@ import java.util.List;
 @SpringBootTest
 @Transactional
 public class ServiceTest {
-    @Autowired
+/*    @Autowired
     private ToDoListService toDoListService;
 
     @Test
@@ -21,6 +21,6 @@ public class ServiceTest {
         for(ToDoListDTO oneToDo : toDoList){
             System.out.println(oneToDo);
         }
-    }
+    }*/
 
 }

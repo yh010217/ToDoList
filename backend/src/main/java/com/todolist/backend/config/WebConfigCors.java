@@ -9,10 +9,17 @@ public class WebConfigCors implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:3000")
-                .allowedOrigins("http://localhost")
-                .allowedOrigins("http://frontend")
-                .allowedMethods("GET","POST","PUT","DELETE")
+                .allowedOrigins("http://localhost:3000"
+                        , "http://localhost"
+                        , "http://frontend"
+                        , "http://43.202.103.152"
+                        , "http://wooli-st.online"
+                        , "https://wooli-st.online"
+                        , "http://wooli-st.online/**"
+                        , "https://wooli-st.online/**"
+                        , "http://43.202.103.152"
+                        , "https://43.202.103.152")
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowCredentials(true);
 
 

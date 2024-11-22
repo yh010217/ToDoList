@@ -1,13 +1,18 @@
 import '../../css/toDoList/backGround.css';
 import '../../css/toDoList/items.css';
 import '../../css/toDoList/modal.css';
+import '../../css/toDoList/selectBox.css';
 import 추가 from '../../img/추가.png'
 import {Link, useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
-import ToDoModal from "./ToDoModal";
+import ToDoAddModal from "./ToDoAddModal";
 import {useEffect, useState} from "react";
 import {getAuthHeader, getNewToken} from "../../utils/auth";
 import ToDoListItem from "./ToDoListItem";
+import ToDoDetailModal from "./ToDoDetailModal";
+import ToDoModifyModal from "./ToDoModifyModal";
+import ToDoOptionSelect from "./ToDoOptionSelect";
+import ToDoSortSelect from "./ToDoSortSelect";
 
 
 export default function ToDoList() {
@@ -19,9 +24,19 @@ export default function ToDoList() {
     const [planList, setPlanList] = useState([]);
     const [modalType, setModalType] = useState('');
 
-    const [childrenUpdateFunc, setChildrenUpdateFunc] = useState(()=>()=>{});
+    const [childrenUpdateFunc, setChildrenUpdateFunc] = useState(() => () => {
+    });
+    const [myLineUpdateFunc, setMyLineUpdateFunc] = useState(() => () => {
+    });
 
     const [parentPlan, setParentPlan] = useState(0);
+    const [detailPlanId, setDetailPlanId] = useState(0);
+    const [planDetail, setPlanDetail] = useState({});
+
+
+    const [listOption, setListOption] = useState(localStorage.getItem('option') || 'nce');
+    const [listSort, setListSort] = useState(localStorage.getItem('sort') || 'name');
+    const [ascDesc, setAscDesc] = useState(localStorage.getItem('asc') || 'asc');
 
     useEffect(() => {
 
@@ -32,11 +47,13 @@ export default function ToDoList() {
 
                 localStorage.setItem('auth', authHeader);
 
-                axios.get('/api/todo/list', {
-                    headers: {
-                        Authorization: authHeader,
-                    },
-                }).then(res => {
+                axios.get('/api/todo/list/' + listOption + '/'
+                    + listSort + '/' + ascDesc
+                    , {
+                        headers: {
+                            Authorization: authHeader,
+                        },
+                    }).then(res => {
                     if (res.status === 200) {
                         console.log(res.data);
                         setPlanList(res.data);
@@ -67,7 +84,6 @@ export default function ToDoList() {
     const day_int = date_object.getDay();
     const day_str_arr = ['Sun', 'Mon', 'Tues', 'Wednes', 'Thurs', 'Fri', 'Satur'];
     const day = day_str_arr[day_int] + 'day';
-    console.log(day);
 
     const month_arr = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
     const month_str = month_arr[month - 1];
@@ -75,7 +91,8 @@ export default function ToDoList() {
     const addMainList = function () {
         setModalType('1');
         setParentPlan(0);
-        setChildrenUpdateFunc(()=>()=>{});
+        setChildrenUpdateFunc(() => () => {
+        });
     }
 
 
@@ -104,6 +121,16 @@ export default function ToDoList() {
                 </div>
                 <div className={'header-bottom-line'}></div>
             </div>
+            <div className={'select-boxes'}>
+                <div className={'select-left'}></div>
+                <div className={'select-right'}>
+                    <ToDoOptionSelect listOption={listOption} setListOption={setListOption}
+                                      updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}/>
+                    <ToDoSortSelect listSort={listSort} setListSort={setListSort}
+                                    ascDesc={ascDesc} setAscDesc={setAscDesc}
+                                    updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}/>
+                </div>
+            </div>
             <div className={'plan-items'}>
                 {
                     planList.map(item => (
@@ -111,6 +138,14 @@ export default function ToDoList() {
                                           updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
                                           setParentPlan={setParentPlan} setModalType={setModalType}
                                           setChildrenUpdateFunc={setChildrenUpdateFunc}
+                                          setDetailPlan={setDetailPlanId}
+                                          setMyLineUpdateFunc={setMyLineUpdateFunc}
+                                          parentChildrenFunc={() => () => {
+                                              setUpdateTrigger(!updateTrigger)
+                                          }}
+                                          listOption={listOption}
+                                          listSort={listSort}
+                                          ascDesc={ascDesc}
                             />
                         )
                     )
@@ -118,12 +153,25 @@ export default function ToDoList() {
             </div>
 
             <div className={'modal-container'} style={{display: modalType === '' ? 'none' : 'block'}}>
-                <ToDoModal modalType={modalType} setModalType={setModalType}
-                           year={year} month={month} date={date}
-                           updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
-                           parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
-                >
-                </ToDoModal>
+                {modalType === '1' || modalType === '2' || modalType === '3' ?
+                    <ToDoAddModal modalType={modalType} setModalType={setModalType}
+                                  year={year} month={month} date={date}
+                                  updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
+                                  parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
+                    />
+                    : modalType === 'detail' ?
+                        <ToDoDetailModal detailPlanId={detailPlanId}
+                                         planDetail={planDetail}
+                                         setPlanDetail={setPlanDetail}
+                                         setModalType={setModalType}
+                        /> :
+                        modalType === 'modify' ?
+                            <ToDoModifyModal planDetail={planDetail} setModalType={setModalType}
+                                             updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
+                                             childrenUpdateFunc={childrenUpdateFunc}
+                                             myLineUpdateFunc={myLineUpdateFunc}
+                            /> : ''
+                }
             </div>
         </div>
     )
