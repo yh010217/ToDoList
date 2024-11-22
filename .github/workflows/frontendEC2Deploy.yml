@@ -43,19 +43,29 @@ jobs:
               --port 22 \
               --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
-
-      - name: Copy Build Files to Nginx Directory
-        uses: actions/setup-linux@v1
+      - name: SCP로 EC2에 빌드된 파일을 업로드
+        uses: appleboy/scp-action@v0.1.7
         with:
-          path: /var/www/react-app
-          script: |
-            sudo mkdir -p /var/www/react-app
-            sudo rm -rf /var/www/react-app/*
-            sudo cp -R ./build/* /var/www/react-app/
-            sudo chown -R www-data:www-data /var/www/react-app
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: ./build/*
+          target: /home/ubuntu/project/frontTemp
 
-      - name: Restart Nginx
-        run: sudo systemctl restart nginx
+      - name: SSH로 EC2 원격 접속해서 권한 바꾸고 nginx 다시 실행시키기
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            rm -rf /var/www/react-app
+            mkdir /var/www/react-app
+            mv /home/ubuntu/project/frontTemp/* /var/www/react-app/
+            sudo chown -R www-data:www-data /var/www/react-app
+            sudo systemctl restart nginx
+            
 
       - name: Revoke GitHub Actions IP
         run: |
