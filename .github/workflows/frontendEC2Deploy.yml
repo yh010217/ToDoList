@@ -18,10 +18,14 @@ jobs:
           node-version: 20
 
       - name: Install Dependencies
-        run: npm install
+        run: |
+          cd frontend
+          npm install
 
       - name: Build React App
-        run: npm run build
+        run: |
+          cd frontend          
+          npm run build
 
 
       - name: Get Actions IP - 이 IP로 EC2 보안그룹 임시 변경
