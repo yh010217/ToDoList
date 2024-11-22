@@ -67,12 +67,13 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           script: |
+            sudo systemctl stop nginx
             sudo chmod -R 777 /var/www/react-app
             rm -rf /var/www/react-app
             mkdir /var/www/react-app
-            mv /home/ubuntu/project/frontTemp/* /var/www/react-app/
+            mv /home/ubuntu/project/frontTemp/frontend/build/* /var/www/react-app/
             sudo chown -R www-data:www-data /var/www/react-app
-            sudo systemctl restart nginx
+            sudo systemctl start nginx
             rm -rf /home/ubuntu/project/frontTemp
             
 
