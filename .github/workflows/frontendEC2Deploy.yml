@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CI: false  # CI를 false로 설정
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
