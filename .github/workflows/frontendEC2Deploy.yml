@@ -43,20 +43,16 @@ jobs:
               --port 22 \
               --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
-      - name: 이전 파일 제거
-        run: |
-          sudo mkdir -p /var/www/react-app
-          sudo rm -rf /var/www/react-app/*
 
       - name: Copy Build Files to Nginx Directory
         uses: actions/setup-linux@v1
         with:
           path: /var/www/react-app
-        run: |
-          sudo mkdir -p /var/www/react-app
-          sudo rm -rf /var/www/react-app/*
-          sudo cp -R ./build/* /var/www/react-app/
-          sudo chown -R www-data:www-data /var/www/react-app
+          script: |
+            sudo mkdir -p /var/www/react-app
+            sudo rm -rf /var/www/react-app/*
+            sudo cp -R ./build/* /var/www/react-app/
+            sudo chown -R www-data:www-data /var/www/react-app
 
       - name: Restart Nginx
         run: sudo systemctl restart nginx
