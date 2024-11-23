@@ -18,7 +18,7 @@ export default function Calendar() {
 
     const int_year = parseInt(year);
     const int_month = parseInt(month);
-    if(month.length != 2 && int_month >= 1 && int_month <= 12){
+    if(month.length !== 2 && int_month >= 1 && int_month <= 12){
         const navMonth = '0'+month;
 
         navigate('/calendar/'+year+'/'+navMonth)
