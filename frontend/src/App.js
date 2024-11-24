@@ -9,6 +9,7 @@ import {getAuthHeader} from "./utils/auth";
 import {HeaderContext} from "./context/HeaderContext";
 import Calendar from "./component/calendar/Calendar";
 import TimeTable from "./component/timeTable/TimeTable";
+import NaverLogin from "./component/oauth2/NaverLogin";
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
                     <Route path="/to-do-list" element={<ToDoList/>}></Route>
                     <Route path="/time-table/:year/:month/:date" element={<TimeTable/>}></Route>
                     <Route path="/calendar/:year/:month" element={<Calendar/>}></Route>
+                    {/*<Route path="/oauth2/code/naver" element={<NaverLogin/>}></Route>*/}
                 </Routes>
             </BrowserRouter>
         </HeaderContext.Provider>

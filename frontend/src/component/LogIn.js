@@ -1,33 +1,44 @@
 import {Link, useNavigate} from "react-router-dom";
 import '../css/login.css'
 import axios from "axios";
-import {useState,useContext} from "react";
+import {useState, useContext, useEffect} from "react";
 import {HeaderContext} from "../context/HeaderContext";
+import {get_naver_login_link} from "../utils/oauth_link";
 
 export default function LogIn() {
 
-    const {headerUpdate,setHeaderUpdate} = useContext(HeaderContext);
+    const {headerUpdate, setHeaderUpdate} = useContext(HeaderContext);
 
     const navigate = useNavigate();  // 페이지 이동을 위해 사용
 
     const [loginId, setLoginId] = useState('');
     const [password, setPassword] = useState('');
+/*
+    const [naverLink,setNaverLink] = useState('');
+    useEffect(()=>{
+        let naver_login_link;
+        const getNaverLoginLink = async () =>{
+            naver_login_link = await get_naver_login_link();
+            setNaverLink(naver_login_link);
+        }
+        getNaverLoginLink();
+    },[])*/
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const res = await axios.post("/api/login",
                 {
-                        loginId: loginId,
-                        password: password
+                    loginId: loginId,
+                    password: password
                 });
             if (res.status === 200) {
-                if(res.headers['authorization'] !== null &&
-                res.headers['authorization'].startsWith('Bearer')){
-                    localStorage.setItem('auth',res.headers['authorization']);
+                if (res.headers['authorization'] !== null &&
+                    res.headers['authorization'].startsWith('Bearer')) {
+                    localStorage.setItem('auth', res.headers['authorization']);
                     setHeaderUpdate(!headerUpdate);
                     navigate('/');
-                }else{
+                } else {
                     throw new Error('로그인 에러');
                 }
             }
@@ -86,6 +97,11 @@ export default function LogIn() {
                             </li>
                         </ul>
                     </form>
+                    <ul>
+                        <li>
+                            <a href={"/login/oauth2/naver"}>네이버 로그인</a>
+                        </li>
+                    </ul>
                 </div>
 
             </div>

@@ -20,7 +20,7 @@ export const getAuthHeader = async () => {
     const originalToken = localStorage.getItem('auth');
     if(originalToken && isTokenValid(originalToken)){
         return originalToken;
-    }else{
+    }else if(originalToken){
         const token = await getNewToken();
         if (token && isTokenValid(token)) {
             localStorage.setItem('auth',token);
@@ -28,6 +28,8 @@ export const getAuthHeader = async () => {
         }else{
             return null;
         }
+    }else{
+        return null;
     }
 
 }
@@ -43,9 +45,6 @@ const getNewToken = async () => {
     try {
         const res = await axios.post('/api/login/reissue');
         if (res.status === 200) {
-            console.log('---------getNewToken에서 받아는 오지?--------');
-            console.log(res.headers['authorization']);
-            console.log('---------대답--------');
             if (res.headers['authorization'] && res.headers['authorization'].startsWith('Bearer')) {
                 return res.headers['authorization'];
             } else {
@@ -56,6 +55,7 @@ const getNewToken = async () => {
         }
     } catch (error) {
         console.error(error);
+        localStorage.removeItem('auth');
         return null;
     }
 }

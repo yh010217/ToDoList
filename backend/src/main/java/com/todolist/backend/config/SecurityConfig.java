@@ -4,6 +4,7 @@ import com.todolist.backend.config.jwt.CustomLogoutFilter;
 import com.todolist.backend.config.jwt.JWTFilter;
 import com.todolist.backend.config.jwt.JWTUtil;
 import com.todolist.backend.config.jwt.LoginFilter;
+import com.todolist.backend.oauth.CustomOAuth2UserService;
 import com.todolist.backend.repository.user.RefreshRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -32,13 +33,15 @@ public class SecurityConfig {
 
     private final RefreshRepository refreshRepository;
 
+    private final CustomOAuth2UserService customOAuth2UserService;
+
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
@@ -51,9 +54,13 @@ public class SecurityConfig {
         http
                 .formLogin((auth) -> auth.disable());
 
-//        http
-//                .oauth2Login((oauth2) ->
-//                        oauth2.loginPage("/"));
+        http
+                .oauth2Login((oauth2) -> {
+                            oauth2.loginProcessingUrl("/api/login/oauth2/code/*");
+                            oauth2.userInfoEndpoint(userInfoEndpointConfig ->
+                                    userInfoEndpointConfig.userService(customOAuth2UserService));
+                        }
+                );
 
         http
                 .httpBasic((auth) -> auth.disable());
@@ -61,7 +68,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/","/api/login/reissue","/api/**").permitAll()
+                        .requestMatchers("/", "/api/login/reissue", "/api/**").permitAll()
                 )//일단 /api/** 는 임시로..
         ;
 
@@ -70,15 +77,15 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http
-                .addFilterBefore(new JWTFilter(jwtUtil),LoginFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)
-                                ,jwtUtil,refreshRepository)
+                                , jwtUtil, refreshRepository)
                         , UsernamePasswordAuthenticationFilter.class);
 
         http
-                .addFilterBefore(new CustomLogoutFilter(jwtUtil,refreshRepository)
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository)
                         , LogoutFilter.class);
 
 

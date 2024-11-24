@@ -51,11 +51,15 @@ public class LoginController {
     @PostMapping("/api/login/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response){
         String requestRefresh = null;
-        Cookie[] cookies = request.getCookies();
-        for(Cookie cookie : cookies){
-            if(cookie.getName().equals("refresh")){
-                requestRefresh = cookie.getValue();
+        try {
+            Cookie[] cookies = request.getCookies();
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("refresh")) {
+                    requestRefresh = cookie.getValue();
+                }
             }
+        }catch (NullPointerException ne){
+            System.out.println("no cookie or no refresh");
         }
         if(requestRefresh == null){
             //400에러
