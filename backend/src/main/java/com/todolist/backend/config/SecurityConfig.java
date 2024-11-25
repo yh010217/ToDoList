@@ -55,12 +55,12 @@ public class SecurityConfig {
                 .formLogin((auth) -> auth.disable());
 
         http
-                .oauth2Login((oauth2) -> {
-                            oauth2.loginProcessingUrl("/api/login/oauth2/code/*");
-                            oauth2.userInfoEndpoint(userInfoEndpointConfig ->
-                                    userInfoEndpointConfig.userService(customOAuth2UserService));
-                        }
-                );
+                .oauth2Login((oauth2) ->
+                            oauth2
+                                    .loginPage("/login")
+                                    .loginProcessingUrl("/api/login/oauth2/code/*")
+                                    .userInfoEndpoint(userInfoEndpointConfig ->
+                                    userInfoEndpointConfig.userService(customOAuth2UserService)));
 
         http
                 .httpBasic((auth) -> auth.disable());
@@ -68,7 +68,8 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/api/login/reissue", "/api/**").permitAll()
+                        .requestMatchers("/", "/api/login/reissue"
+                                , "/api/**", "/oauth2/authorization/**").permitAll()
                 )//일단 /api/** 는 임시로..
         ;
 
