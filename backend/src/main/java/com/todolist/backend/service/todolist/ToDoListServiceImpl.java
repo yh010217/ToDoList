@@ -243,6 +243,13 @@ public class ToDoListServiceImpl implements ToDoListService {
         try {
 
             PlanEntity planEntity = planRepository.findById(dto.getPlanId()).orElseThrow(RuntimeException::new);
+
+            UserEntity user = planEntity.getUser();
+
+            if (!user.getUid().equals(uid)) {
+                throw new RuntimeException();
+            }
+
             if(!planEntity.getPlanTitle().equals(dto.getTitle())){
                 planEntity.setPlanTitle(dto.getTitle());
             }
@@ -254,12 +261,6 @@ public class ToDoListServiceImpl implements ToDoListService {
             }
 
             planRepository.save(planEntity);
-
-            UserEntity user = planEntity.getUser();
-
-            if (!user.getUid().equals(uid)) {
-                throw new RuntimeException();
-            }
 
             // 한 유저가 가지고 있는 class들.
             // 너무 많아져서 받아오기 힘들어지면 나중에 사이즈 제한 둘듯

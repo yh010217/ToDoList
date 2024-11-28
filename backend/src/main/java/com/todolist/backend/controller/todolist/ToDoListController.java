@@ -1,16 +1,11 @@
 package com.todolist.backend.controller.todolist;
 
-import com.todolist.backend.config.jwt.CustomUserDetails;
 import com.todolist.backend.controller.GetUserBySecurityContext;
-import com.todolist.backend.domain.UserEntity;
 import com.todolist.backend.dto.ToDoListDTO;
 import com.todolist.backend.service.todolist.ToDoListService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Clock;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 

@@ -73,20 +73,24 @@ export default function ToDoList() {
         authHeaderFunc();
     }, [updateTrigger]);
 
-    const params = useParams();
+    const today = new Date();
     //년,월,일,요일 표시
+    //
+    // const year = params.year;
+    // const month = params.month;
+    // const date = params.date;
 
-    const year = params.year;
-    const month = params.month;
-    const date = params.date;
+    const year = today.getFullYear()
+    const month = today.getMonth();
+    const date = today.getDate() < 10 ? '0' + today.getDate() : today.getDate();
 
-    const date_object = new Date(year, month - 1, date);
+    const date_object = new Date(year, month, date);
     const day_int = date_object.getDay();
     const day_str_arr = ['Sun', 'Mon', 'Tues', 'Wednes', 'Thurs', 'Fri', 'Satur'];
     const day = day_str_arr[day_int] + 'day';
 
     const month_arr = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-    const month_str = month_arr[month - 1];
+    const month_str = month_arr[month];
 
     const addMainList = function () {
         setModalType('1');
@@ -155,7 +159,7 @@ export default function ToDoList() {
             <div className={'modal-container'} style={{display: modalType === '' ? 'none' : 'block'}}>
                 {modalType === '1' || modalType === '2' || modalType === '3' ?
                     <ToDoAddModal modalType={modalType} setModalType={setModalType}
-                                  year={year} month={month} date={date}
+                                  year={year} month={month+1} date={date}
                                   updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
                                   parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
                     />

@@ -1,4 +1,4 @@
-package com.todolist.backend.config.jwt;
+package com.todolist.backend.jwt;
 
 
 import com.todolist.backend.domain.UserEntity;
@@ -53,7 +53,7 @@ public class JWTFilter extends OncePerRequestFilter {
         String role = jwtUtil.getRole(token);
 
         UserEntity userEntity = UserEntity.builder()
-                .loginId(loginId)
+//                .loginId(loginId)
                 .password("temp password")
                 .role(role)
                 .build();
