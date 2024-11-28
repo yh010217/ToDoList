@@ -1,21 +1,19 @@
 package com.todolist.backend.config;
 
-import com.todolist.backend.config.jwt.CustomLogoutFilter;
-import com.todolist.backend.config.jwt.JWTFilter;
-import com.todolist.backend.config.jwt.JWTUtil;
-import com.todolist.backend.config.jwt.LoginFilter;
+import com.todolist.backend.jwt.CustomLogoutFilter;
+import com.todolist.backend.jwt.JWTFilter;
+import com.todolist.backend.jwt.JWTUtil;
+import com.todolist.backend.jwt.LoginFilter;
+import com.todolist.backend.oauth.CustomOAuth2SuccessHandler;
 import com.todolist.backend.oauth.CustomOAuth2UserService;
 import com.todolist.backend.repository.user.RefreshRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,6 +32,8 @@ public class SecurityConfig {
     private final RefreshRepository refreshRepository;
 
     private final CustomOAuth2UserService customOAuth2UserService;
+
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -60,7 +60,8 @@ public class SecurityConfig {
                                     .loginPage("/login")
                                     .loginProcessingUrl("/api/login/oauth2/code/*")
                                     .userInfoEndpoint(userInfoEndpointConfig ->
-                                    userInfoEndpointConfig.userService(customOAuth2UserService)));
+                                    userInfoEndpointConfig.userService(customOAuth2UserService))
+                                    .successHandler(customOAuth2SuccessHandler));
 
         http
                 .httpBasic((auth) -> auth.disable());

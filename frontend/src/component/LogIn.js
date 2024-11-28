@@ -13,16 +13,6 @@ export default function LogIn() {
 
     const [loginId, setLoginId] = useState('');
     const [password, setPassword] = useState('');
-/*
-    const [naverLink,setNaverLink] = useState('');
-    useEffect(()=>{
-        let naver_login_link;
-        const getNaverLoginLink = async () =>{
-            naver_login_link = await get_naver_login_link();
-            setNaverLink(naver_login_link);
-        }
-        getNaverLoginLink();
-    },[])*/
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -100,6 +90,9 @@ export default function LogIn() {
                     <ul>
                         <li>
                             <a href="/oauth2/authorization/naver">네이버 로그인</a>
+                        </li>
+                        <li>
+                            <a href="/oauth2/authorization/google">구글 로그인</a>
                         </li>
                     </ul>
                 </div>

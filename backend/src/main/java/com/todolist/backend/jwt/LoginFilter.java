@@ -1,4 +1,4 @@
-package com.todolist.backend.config.jwt;
+package com.todolist.backend.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.todolist.backend.domain.RefreshEntity;
@@ -67,15 +67,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        int refreshExpSec = 24*60*60;
 
-        String accessJwt = jwtUtil.createAccessJwt(uid,loginId,nickname,role,10*60*1000L);//10분
-        String refreshJwt = jwtUtil.createRefreshJwt(uid, role,refreshExpSec*1000L);//하루
+        String accessJwt = jwtUtil.createAccessJwt(uid,nickname,role);//10분
+        String refreshJwt = jwtUtil.createRefreshJwt(uid, role);//3일
 
-        addRefreshEntity(uid,refreshJwt,refreshExpSec*1000L);
+        addRefreshEntity(uid,refreshJwt);
 
         response.addHeader("Authorization","Bearer "+accessJwt);
-        response.addCookie(createCookie("refresh",refreshJwt, refreshExpSec));
+        response.addCookie(createRefreshCookie("refresh",refreshJwt));
         response.setStatus(HttpStatus.OK.value());
     }
 
@@ -85,17 +84,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(401);
     }
 
-    private Cookie createCookie(String key, String value, int maxAge){
+    private Cookie createRefreshCookie(String key, String value){
         Cookie cookie = new Cookie(key,value);
-        cookie.setMaxAge(maxAge);
+        cookie.setMaxAge(3*24*60*60);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
 
         return cookie;
     }
 
-    private void addRefreshEntity(Long uid, String refresh, Long expiredMs){
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
+    private void addRefreshEntity(Long uid, String refresh){
+
+        Long refreshExpSec = 3*24*60*60*1000L;
+        Date date = new Date(System.currentTimeMillis() + refreshExpSec);
         RefreshEntity refreshEntity = RefreshEntity.builder()
                 .uid(uid)
                 .refresh(refresh)

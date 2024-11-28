@@ -20,7 +20,7 @@ export const getAuthHeader = async () => {
     const originalToken = localStorage.getItem('auth');
     if(originalToken && isTokenValid(originalToken)){
         return originalToken;
-    }else if(originalToken){
+    }else{
         const token = await getNewToken();
         if (token && isTokenValid(token)) {
             localStorage.setItem('auth',token);
@@ -28,8 +28,6 @@ export const getAuthHeader = async () => {
         }else{
             return null;
         }
-    }else{
-        return null;
     }
 
 }
