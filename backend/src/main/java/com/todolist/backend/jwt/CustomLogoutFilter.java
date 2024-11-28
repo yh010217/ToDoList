@@ -1,4 +1,4 @@
-package com.todolist.backend.config.jwt;
+package com.todolist.backend.jwt;
 
 import com.todolist.backend.repository.user.RefreshRepository;
 import io.jsonwebtoken.ExpiredJwtException;

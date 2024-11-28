@@ -1,4 +1,4 @@
-package com.todolist.backend.config.jwt;
+package com.todolist.backend.jwt;
 
 import com.todolist.backend.domain.UserEntity;
 import com.todolist.backend.repository.user.UserRepository;

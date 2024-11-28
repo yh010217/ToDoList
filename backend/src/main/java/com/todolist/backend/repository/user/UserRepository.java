@@ -18,4 +18,5 @@ public interface UserRepository
 
     UserEntity findByLoginId(String loginId);
 
+    UserEntity findBySnsId(String snsId);
 }

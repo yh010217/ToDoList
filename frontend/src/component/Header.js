@@ -18,9 +18,6 @@ export default function Header() {
     useEffect(() => {
         const headerFunction = async () => {
             const auth = await getAuthHeader();
-            console.log('useEffect에서 auth : ');
-            console.log(auth);
-
             if (auth && auth.startsWith("Bearer ")) {
                 const token = auth.split(' ')[1];
                 const decodedToken = jwtDecode(token);

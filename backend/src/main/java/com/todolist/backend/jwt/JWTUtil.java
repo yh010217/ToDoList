@@ -1,4 +1,4 @@
-package com.todolist.backend.config.jwt;
+package com.todolist.backend.jwt;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +12,10 @@ import java.util.Date;
 /** jwt를 발급, 검증을 하는 부분 */
 @Component
 public class JWTUtil {
+
+
+    private Long accessExpiredMs = 10*60*1000L; // 10분
+    private Long refreshExpiredMs = 3*24*60*60*1000L; // 3일
 
     private SecretKey secretKey;
 
@@ -47,25 +51,24 @@ public class JWTUtil {
                 .parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createAccessJwt(Long uid, String loginId, String nickname, String role, Long expiredMs){
+    public String createAccessJwt(Long uid, String nickname, String role){
         return Jwts.builder()
                 .claim("category","access")
                 .claim("uid",uid)
-                .claim("loginId",loginId)
                 .claim("nickname",nickname)
                 .claim("role",role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .expiration(new Date(System.currentTimeMillis() + accessExpiredMs))
                 .signWith(secretKey)
                 .compact();
     }
-    public String createRefreshJwt(Long uid, String role, Long expiredMs){
+    public String createRefreshJwt(Long uid, String role){
         return Jwts.builder()
                 .claim("category","refresh")
                 .claim("uid",uid)
                 .claim("role",role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .expiration(new Date(System.currentTimeMillis() + refreshExpiredMs))
                 .signWith(secretKey)
                 .compact();
     }
