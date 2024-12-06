@@ -1,5 +1,6 @@
 package com.todolist.backend.repository.plan;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.todolist.backend.domain.PlanEntity;
@@ -38,4 +39,80 @@ public class PlanQueryDSLImpl implements PlanQueryDSL{
 
         return toDoList;
     }
+
+    @Override
+    public List<PlanEntity> getToDoListByCondition(UserEntity tempUser, int depth
+            , PlanEntity parentPlan, String option, String sort, String asc) {
+
+        //일단 깊이는 모두가 조건식으로 들어갈거니깐...
+        BooleanExpression listRange = planEntity.depth.eq(depth)
+                .and(planEntity.user.eq(tempUser));
+        if(depth != 1){
+            listRange = listRange.and(planEntity.parentPlan.eq(parentPlan));
+        }
+
+        switch (option){
+            case "nc" :
+                listRange = listRange.and(planEntity.status.eq(0)
+                        .or(planEntity.status.eq(1)));
+                break;
+            case "ne" :
+                listRange = listRange.and(planEntity.status.eq(0)
+                        .or(planEntity.status.eq(2)));
+                break;
+            case "ce" :
+                listRange = listRange.and(planEntity.status.eq(1)
+                        .or(planEntity.status.eq(2)));
+                break;
+            case "n" :
+                listRange = listRange.and(planEntity.status.eq(0));
+                break;
+            case "c" :
+                listRange = listRange.and(planEntity.status.eq(1));
+                break;
+            case "e" :
+                listRange = listRange.and(planEntity.status.eq(2));
+                break;
+            default:
+                break;
+        }
+
+        OrderSpecifier<?> orderSpecifier = null;
+
+        switch (sort) {
+            case "deadline":
+                if (asc.equals("asc")) {
+                    orderSpecifier = planEntity.deadline.asc();
+                } else {
+                    orderSpecifier = planEntity.deadline.desc();
+                }
+                break;
+            case "name":
+                if (asc.equals("asc")) {
+                    orderSpecifier = planEntity.planTitle.asc();
+                } else {
+                    orderSpecifier = planEntity.planTitle.desc();
+                }
+                break;
+            case "status":
+                if (asc.equals("asc")) {
+                    orderSpecifier = planEntity.status.asc();
+                } else {
+                    orderSpecifier = planEntity.status.desc();
+                }
+                break;
+            default:
+                break;
+        }
+
+        List<PlanEntity> toDoList =
+                queryFactory.select(planEntity)
+                        .from(planEntity)
+                        .where(listRange)
+                        .orderBy(orderSpecifier)
+                        .fetch();
+
+        return toDoList;
+    }
+
 }

@@ -1,6 +1,6 @@
 package com.todolist.backend.controller.user;
 
-import com.todolist.backend.config.jwt.JWTUtil;
+import com.todolist.backend.jwt.JWTUtil;
 import com.todolist.backend.domain.RefreshEntity;
 import com.todolist.backend.domain.UserEntity;
 import com.todolist.backend.repository.user.RefreshRepository;
@@ -9,6 +9,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,14 +49,55 @@ public class LoginController {
         System.out.println("========================");
     }
 
+    @PostMapping("/api/oauth/cookie-to-header")
+    public void CookieToHeader(HttpServletRequest request, HttpServletResponse response){
+
+        //왜 생기는 지 몰라도 session이 생김.
+        HttpSession session = request.getSession(false);
+        if(session != null) session.invalidate();
+
+        System.out.println(session);
+        String accessToken = null;
+        try {
+            Cookie[] cookies = request.getCookies();
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("tempjwt")) {
+                    accessToken = cookie.getValue();
+                }
+                if(cookie.getName().equals("JSESSIONID")){
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+            }
+            System.out.println(accessToken);
+        }catch (NullPointerException ne){
+            System.out.println("no cookie or no refresh");
+        }
+
+        if(accessToken!=null){
+            Long uid = jwtUtil.getUid(accessToken);
+            String role = jwtUtil.getRole(accessToken);
+            String refreshToken = jwtUtil.createRefreshJwt(uid,role);
+            addRefreshEntity(uid,refreshToken);
+            response.addHeader("Authorization","Bearer "+accessToken);
+            response.addCookie(createRefreshCookie("refresh",refreshToken));
+            response.setStatus(HttpStatus.OK.value());
+        }
+    }
+
     @PostMapping("/api/login/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response){
         String requestRefresh = null;
-        Cookie[] cookies = request.getCookies();
-        for(Cookie cookie : cookies){
-            if(cookie.getName().equals("refresh")){
-                requestRefresh = cookie.getValue();
+        try {
+            Cookie[] cookies = request.getCookies();
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("refresh")) {
+                    requestRefresh = cookie.getValue();
+                }
             }
+        }catch (NullPointerException ne){
+            System.out.println("no cookie or no refresh");
         }
         if(requestRefresh == null){
             //400에러
@@ -80,26 +122,24 @@ public class LoginController {
 
         Long uid = jwtUtil.getUid(requestRefresh);
         UserEntity user = userService.getUserByUid(uid);
-        String loginId = user.getLoginId();
         String nickname = user.getNickname();
         String role = user.getRole();
-        String newAccessToken = jwtUtil.createAccessJwt(uid,loginId,nickname,role,10*60*1000L);
+        String newAccessToken = jwtUtil.createAccessJwt(uid,nickname,role);
 
-        int refreshExpSec = 24*60*60;
-        String newRefreshToken = jwtUtil.createRefreshJwt(uid,role,refreshExpSec*1000L);
+        String newRefreshToken = jwtUtil.createRefreshJwt(uid,role);
 
         refreshRepository.deleteByRefresh(requestRefresh);
-        addRefreshEntity(uid,newRefreshToken,refreshExpSec*1000L);
+        addRefreshEntity(uid,newRefreshToken);
 
         response.setHeader("Authorization","Bearer "+newAccessToken);
-        response.addCookie(createCookie("refresh",newRefreshToken,refreshExpSec));
+        response.addCookie(createRefreshCookie("refresh",newRefreshToken));
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private Cookie createCookie(String key, String value, int maxAge){
+    private Cookie createRefreshCookie(String key, String value){
         Cookie cookie = new Cookie(key,value);
-        cookie.setMaxAge(maxAge);
+        cookie.setMaxAge(3*24*60*60);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
 
@@ -107,8 +147,12 @@ public class LoginController {
     }
 
 
-    private void addRefreshEntity(Long uid, String refresh, Long expiredMs){
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+
+    private void addRefreshEntity(Long uid, String refresh){
+
+        Long refreshExpSec = 3*24*60*60*1000L;
+        Date date = new Date(System.currentTimeMillis() + refreshExpSec);
         RefreshEntity refreshEntity = RefreshEntity.builder()
                 .uid(uid)
                 .refresh(refresh)
@@ -116,4 +160,5 @@ public class LoginController {
                 .build();
         refreshRepository.save(refreshEntity);
     }
+
 }
