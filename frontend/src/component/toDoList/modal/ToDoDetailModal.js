@@ -1,9 +1,9 @@
-import x표시 from "../../img/x.png";
-import detailImg from "../../img/detail.png";
-import '../../css/toDoList/modal.css';
+import x표시 from "../../../img/x.png";
+import detailImg from "../../../img/detail.png";
+import '../../../css/toDoList/modal.css';
 import {useEffect, useState} from "react";
 import axios from "axios";
-import {getAuthHeader} from "../../utils/auth";
+import {getAuthHeader} from "../../../utils/auth";
 import {useNavigate} from "react-router-dom";
 
 export default function ToDoDetailModal({

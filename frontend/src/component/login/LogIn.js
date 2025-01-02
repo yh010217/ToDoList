@@ -1,9 +1,8 @@
 import {Link, useNavigate} from "react-router-dom";
-import '../css/login.css'
+import '../../css/login.css'
 import axios from "axios";
 import {useState, useContext, useEffect} from "react";
-import {HeaderContext} from "../context/HeaderContext";
-import {get_naver_login_link} from "../utils/oauth_link";
+import {HeaderContext} from "../../context/HeaderContext";
 
 export default function LogIn() {
 
@@ -33,7 +32,7 @@ export default function LogIn() {
                 }
             }
         } catch (error) {
-            console.error("회원가입 실패 : ", error);
+            console.error("로그인 실패 : ", error);
         }
     }
 

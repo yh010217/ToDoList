@@ -1,6 +1,6 @@
-import xPng from '../../../../img/x.png';
+import xPng from '../../../img/x.png';
 import {useEffect, useState} from "react";
-import '../../../../css/daily/daily-modal.css';
+import '../../../css/daily/daily-modal.css';
 
 export default function DailyModal({setModalType, modalType, paramYear, paramMonth, paramDate}){
 

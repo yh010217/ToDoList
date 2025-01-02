@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {optionToView} from "../../utils/switchFunc";
+import {optionToView} from "../../../../utils/viewSwitchFunc";
 
 
 export default function ToDoOptionSelect({setListOption,updateTrigger,setUpdateTrigger}) {

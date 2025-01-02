@@ -14,7 +14,6 @@ export default function CalendarBody({params}){
 
     const lastDate = new Date(monthInfo.getFullYear(), monthInfo.getMonth() + 1, 0).getDate();
 
-    console.log(firstDay + lastDate);
     let monthPadding = 7 - ((firstDay + lastDate) % 7);
     monthPadding = monthPadding === 7 ? 0 : monthPadding;
 

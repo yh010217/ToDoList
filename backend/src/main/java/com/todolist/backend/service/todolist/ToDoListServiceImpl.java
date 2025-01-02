@@ -6,7 +6,7 @@ import com.todolist.backend.domain.PlanEntity;
 import com.todolist.backend.domain.UserEntity;
 import com.todolist.backend.dto.ToDoListDTO;
 import com.todolist.backend.repository.planClass.PlanClassRepository;
-import com.todolist.backend.repository.plan.PlanClassesRepository;
+import com.todolist.backend.repository.planClasses.PlanClassesRepository;
 import com.todolist.backend.repository.plan.PlanRepository;
 import jakarta.persistence.EntityExistsException;
 import org.modelmapper.ModelMapper;

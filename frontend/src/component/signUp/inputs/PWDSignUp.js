@@ -3,30 +3,25 @@ import React, {useState} from "react";
 
 const PWDSignUp = React.memo(({password, setPassword, setPwdAble}) => {
 
-    const [isValid, setIsValid] = useState(false);
-
+    const [isValid,setIsValid] = useState(false);
+    const [isMatch,setIsMatch] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [isMatch, setIsMatch] = useState(true);
 
     const validatePassword = (input) => {
         // 정규 표현식: 6~20자, 대문자, 소문자, 숫자 포함
         const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,20}$/;
 
-        if (passwordPattern.test(input)) {
-            setIsValid(true);
-            console.log('잘 해줬군');
-        } else {
-            setIsValid(false);
-            console.log('비밀번호는 6~20자 이내여야 하며, 대문자, 소문자, 숫자를 포함해야 합니다.');
-        }
+        setIsValid(passwordPattern.test(input)); // 이러고 끝나면 handlePasswordChange 에서 제대로 동작 안할수도 있음
+        return passwordPattern.test(input);
     };
 
     const handlePasswordChange = (e) => {
         const input = e.target.value;
         setPassword(input);
-        validatePassword(input);
+        const validCheck = validatePassword(input);
+        // 그냥 set 으로만 하니까 렌더링시점까지 제대로 안되는 이슈 -> setPwdAble 이 제대로 동작 안할 때도 있음
         setIsMatch(input === confirmPassword);
-        if(isValid && (input === confirmPassword)) {
+        if(validCheck && (input === confirmPassword)) {
             setPwdAble(true);
         } else {
             setPwdAble(false);
@@ -37,11 +32,7 @@ const PWDSignUp = React.memo(({password, setPassword, setPwdAble}) => {
         const input = e.target.value;
         setConfirmPassword(input);
         setIsMatch(input === password);
-        if(isValid && (input === password)) {
-            setPwdAble(true);
-        } else {
-            setPwdAble(false);
-        }
+        setPwdAble(isValid && (input === password));
     }
 
 

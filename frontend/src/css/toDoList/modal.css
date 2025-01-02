@@ -8,7 +8,7 @@
     border-radius: 24px;
     background-color: rgba(100,100,100,0.4);
     text-align: center;
-    z-index: 20;
+    z-index: 40;
 }
 
 .modal-white{
@@ -113,6 +113,7 @@
 
 .to-do-class-div{
     display: flex;
+    position: relative;
 }
 #to-do-class{
     flex-grow: 1;

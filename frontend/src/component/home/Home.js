@@ -1,12 +1,12 @@
 import {Link} from "react-router-dom";
-import todoList from '../img/목표관리.png'
-import checkList from '../img/checkList.png'
-import timeTable from '../img/일정관리.png'
-import calendar from '../img/calendar.png'
-import travel from '../img/이동계획.png'
-import '../css/Home.css'
+import todoList from '../../img/목표관리.png'
+import checkList from '../../img/checkList.png'
+import timeTable from '../../img/일정관리.png'
+import calendar from '../../img/calendar.png'
+import travel from '../../img/이동계획.png'
+import '../../css/Home.css'
 import {useContext, useEffect} from "react";
-import {HeaderContext} from "../context/HeaderContext";
+import {HeaderContext} from "../../context/HeaderContext";
 
 export default function Home() {
 

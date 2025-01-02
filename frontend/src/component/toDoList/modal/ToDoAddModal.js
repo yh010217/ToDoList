@@ -1,14 +1,15 @@
-import x표시 from "../../img/x.png";
+import '../../../css/toDoList/modal.css';
+import x표시 from '../../../img/x.png'
 import {useEffect, useRef, useState} from "react";
-import {getAuthHeader} from "../../utils/auth";
 import axios from "axios";
+import {getAuthHeader} from "../../../utils/auth";
+import ClassSearchWindow from "../class_search/ClassSearchWindow";
 
+export default function ToDoAddModal(props) {
 
-export default function ToDoModifyModal({
-                                            planDetail, setModalType
-                                            , updateTrigger, setUpdateTrigger
-                                            , childrenUpdateFunc, myLineUpdateFunc
-                                        }) {
+    //'', '1', '2', '3' 중 하나 ('' 는 그냥 modal이 안보이는거임)
+    //나중에 item에서 추가할 때는 modalType이 2,3이어야 함
+    const modalType = props.modalType;
 
     const modalTitleRef = useRef();
     const classTypeRef = useRef();
@@ -16,30 +17,13 @@ export default function ToDoModifyModal({
 
     const [title, setTitle] = useState('');
 
-    const [year, setYear] = useState('');
-    const [month, setMonth] = useState('');
-    const [date, setDate] = useState('');
+    //이건 모달용이어서 props로 받아온 값이 바뀌어도 됨, 그리고 string임
+    const [year, setYear] = useState(props.year);
+    const [month, setMonth] = useState(props.month);
+    const [date, setDate] = useState(props.date);
 
-    const [hour, setHour] = useState('');
-    const [minute, setMinute] = useState('');
-
-
-    const [classType, setClassType] = useState('');
-    const [classes, setClasses] = useState(planDetail.classes);
-
-    const [todoMemo, setTodoMemo] = useState('');
-
-    useEffect(() => {
-        setTitle(planDetail.title);
-        setYear(planDetail.deadline.slice(0, 4));
-        setMonth(planDetail.deadline.slice(5, 7));
-        setDate(planDetail.deadline.slice(8, 10));
-        setHour(planDetail.deadline.slice(11, 13));
-        setMinute(planDetail.deadline.slice(14, 16));
-        setTodoMemo(planDetail.memo);
-        modalMemoRef.current.value = planDetail.memo;
-    }, []);
-
+    const [hour, setHour] = useState('23');
+    const [minute, setMinute] = useState('59');
 
     const dateChange = function (e) {
         let date_value = e.target.value;
@@ -53,9 +37,41 @@ export default function ToDoModifyModal({
         setMinute(time_value.split(":")[1]);
     }
 
+    const modalClose = function () {
+        modalTitleRef.current.value = '';
+        classTypeRef.current.value = '';
+        setYear(props.year);
+        setMonth(props.month);
+        setDate(props.date);
+        setHour('23');
+        setMinute('59');
+        setClasses([]);
+        modalMemoRef.current.value = '';
+        props.setModalType('');
+    }
+
+    const [classTypeFocus, setClassTypeFocus] = useState(false);
+    const [classTypeWidth, setClassTypeWidth] = useState(0);
+    useEffect(() => {
+        setClassTypeWidth(classTypeRef.current.getBoundingClientRect().width);
+        const handleResize = () => {
+            setClassTypeWidth(classTypeRef.current.getBoundingClientRect().width);
+        };
+        window.addEventListener("resize", handleResize);
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    },[]);
+
+    const [classType, setClassType] = useState('');
+    const [classes, setClasses] = useState([]);
     const classTypeHandle = (e) => {
         const input = e.target.value;
         setClassType(input);
+    }
+    const classTypeHandleText = (text) =>{
+        classTypeRef.current.value = text;
+        setClassType(text);
     }
     const classAdd = () => {
         //비지 않아야 추가할거임, 이미 있는 거는 더 추가 안함
@@ -70,23 +86,24 @@ export default function ToDoModifyModal({
         setClasses(classes.filter(item => item !== toRemoveItem));
     }
 
+
+    const [todoMemo, setTodoMemo] = useState('');
     const textAreaResize = (e) => {
         setTodoMemo(e.target.value);
         e.target.style.height = 'auto'; //height 초기화
         e.target.style.height = e.target.scrollHeight + 4 + 'px';
     }
-
-
-    const todoModify = async () => {
+    const todoAdd = async () => {
         const postDeadline = new Date(parseInt(year), parseInt(month) - 1
             , parseInt(date), parseInt(hour), parseInt(minute));
         const authHeader = await getAuthHeader();
-        axios.post('/api/todo/modify', {
-            planId : planDetail.planId
-            , title: title
+        axios.post('/api/todo/add', {
+            title: title
             , deadline: postDeadline.toISOString()
             , classes: classes
+            , depth: parseInt(modalType)
             , memo: todoMemo
+            , parentPlanId: props.parentPlan
         }, {
             headers: {
                 Authorization: authHeader,
@@ -94,19 +111,23 @@ export default function ToDoModifyModal({
         }).then(res => {
             console.log(res);
             if (res.status === 200) {
-                myLineUpdateFunc();
-            }
-        }).catch(error =>{
-            console.error('update 실패 : ',error);
+                //투두리스트 업데이트 하라고..
+                if (modalType === '1') {
+                    //depth 1짜리 추가할 때는 그냥 한번 추가만 해주면 됨
+                    props.setUpdateTrigger(!props.updateTrigger);
+                } else {
+                    // depth 2,3인 리스트를 추가할 때에는,
+                    // 닫혀있었으면 펼치고
+                    // parent의 아가들을 다시 불러와야함.
+                    props.childrenUpdateFunc();
+                }
+
+            }//뭐... else면 오류 한번 띄워야겠지만... 일단 뭐..
         }).finally(() => {
             modalClose();
         })
     }
 
-
-    const modalClose = function () {
-        setModalType('');
-    }
     return (
         <div className={'modal-white'}>
             <button onClick={modalClose} className={'modal-close'}><img src={x표시} alt="닫기"/></button>
@@ -120,7 +141,7 @@ export default function ToDoModifyModal({
                             <div className={'to-do-title-div'}>
                                 <input type="text" id={'to-do-title'} placeholder={'20자 이내'}
                                        maxLength={20} onChange={e => setTitle(e.target.value)}
-                                       ref={modalTitleRef} value={title}/>
+                                       ref={modalTitleRef}/>
                             </div>
                         </td>
                     </tr>
@@ -149,16 +170,33 @@ export default function ToDoModifyModal({
                             <div className={'to-do-class-div'}>
                                 <input type="text" id={'to-do-class'}
                                        onChange={classTypeHandle} ref={classTypeRef}
+                                       onFocus={() => setClassTypeFocus(true)}
+                                       onMouseDown={() => setClassTypeFocus(true)}
                                        placeholder={'10자 이내'}
                                        maxLength={10}
+                                       autoComplete={'off'}
                                        onKeyDown={(e) => {
                                            if (e.key === 'Enter') {
                                                classAdd(); // 엔터 키가 눌렸을 때 classAdd 함수를 실행
+                                           }else if(e.keyCode === 27){//esc
+                                               setClassTypeFocus(false);
                                            }
                                        }}/>
                                 <button className={'class-add'} onClick={classAdd}>
                                     추가
                                 </button>
+                                {
+                                    classTypeFocus ? <><ClassSearchWindow
+                                        classType={classType}
+                                        classTypeHandleText={classTypeHandleText}
+                                        userAllClass={props.userAllClass}
+                                        setClassTypeFocus={setClassTypeFocus}
+                                        classTypeWidth={classTypeWidth}/>
+                                        <button className={'class-search-close'}
+                                                onClick={()=>{setClassTypeFocus(false);}}
+                                        >닫기</button>
+                                    </> :''
+                                }
                             </div>
                         </td>
                     </tr>
@@ -195,8 +233,7 @@ export default function ToDoModifyModal({
                         onClick={modalClose}>취소
                 </button>
                 <button className={'modal-buttons modal-button-right'} type={"button"}
-                onClick={todoModify}>
-                    완료
+                        onClick={todoAdd}>완료
                 </button>
             </div>
         </div>

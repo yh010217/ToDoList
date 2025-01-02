@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
-import arrow from '../../img/arrow.png'
-import {sortToView} from "../../utils/switchFunc";
+import arrow from '../../../../img/arrow.png'
+import {sortToView} from "../../../../utils/viewSwitchFunc";
 
 
 export default function ToDoSortSelect({setListSort,ascDesc,setAscDesc

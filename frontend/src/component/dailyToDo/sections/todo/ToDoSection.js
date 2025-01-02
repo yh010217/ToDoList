@@ -1,5 +1,5 @@
-import addPng from "../../../../../img/추가.png"
-import xPng from "../../../../../img/x.png"
+import addPng from "../../../../img/추가.png"
+import xPng from "../../../../img/x.png"
 
 export default function ToDoSection({setModalType}) {
 

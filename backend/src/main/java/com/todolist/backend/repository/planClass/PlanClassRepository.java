@@ -13,5 +13,4 @@ public interface PlanClassRepository
         extends JpaRepository<PlanClassEntity, Long>, PlanClassQueryDSL {
     Set<PlanClassEntity> findByUser(UserEntity user);
 
-    PlanClassEntity findByUserAndClassName(UserEntity user, String className);
 }

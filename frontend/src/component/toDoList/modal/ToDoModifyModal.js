@@ -1,28 +1,45 @@
-import '../../css/toDoList/modal.css';
-import x표시 from '../../img/x.png'
-import {useRef, useState} from "react";
+import x표시 from "../../../img/x.png";
+import {useEffect, useRef, useState} from "react";
+import {getAuthHeader} from "../../../utils/auth";
 import axios from "axios";
-import {getAuthHeader} from "../../utils/auth";
 
-export default function ToDoAddModal(props) {
 
-    //'', '1', '2', '3' 중 하나 ('' 는 그냥 modal이 안보이는거임)
-    //나중에 item에서 추가할 때는 modalType이 2,3이어야 함
-    const modalType = props.modalType;
+export default function ToDoModifyModal({
+                                            planDetail, setModalType
+                                            , updateTrigger, setUpdateTrigger
+                                            , childrenUpdateFunc, myLineUpdateFunc
+                                        }) {
 
     const modalTitleRef = useRef();
     const classTypeRef = useRef();
     const modalMemoRef = useRef();
 
-    const [title,setTitle] = useState('');
+    const [title, setTitle] = useState('');
 
-    //이건 모달용이어서 props로 받아온 값이 바뀌어도 됨, 그리고 string임
-    const [year, setYear] = useState(props.year);
-    const [month, setMonth] = useState(props.month);
-    const [date, setDate] = useState(props.date);
+    const [year, setYear] = useState('');
+    const [month, setMonth] = useState('');
+    const [date, setDate] = useState('');
 
-    const [hour, setHour] = useState('23');
-    const [minute, setMinute] = useState('59');
+    const [hour, setHour] = useState('');
+    const [minute, setMinute] = useState('');
+
+
+    const [classType, setClassType] = useState('');
+    const [classes, setClasses] = useState(planDetail.classes);
+
+    const [todoMemo, setTodoMemo] = useState('');
+
+    useEffect(() => {
+        setTitle(planDetail.title);
+        setYear(planDetail.deadline.slice(0, 4));
+        setMonth(planDetail.deadline.slice(5, 7));
+        setDate(planDetail.deadline.slice(8, 10));
+        setHour(planDetail.deadline.slice(11, 13));
+        setMinute(planDetail.deadline.slice(14, 16));
+        setTodoMemo(planDetail.memo);
+        modalMemoRef.current.value = planDetail.memo;
+    }, []);
+
 
     const dateChange = function (e) {
         let date_value = e.target.value;
@@ -36,21 +53,6 @@ export default function ToDoAddModal(props) {
         setMinute(time_value.split(":")[1]);
     }
 
-    const modalClose = function () {
-        modalTitleRef.current.value='';
-        classTypeRef.current.value='';
-        setYear(props.year);
-        setMonth(props.month);
-        setDate(props.date);
-        setHour('23');
-        setMinute('59');
-        setClasses([]);
-        modalMemoRef.current.value='';
-        props.setModalType('');
-    }
-
-    const [classType, setClassType] = useState('');
-    const [classes, setClasses] = useState([]);
     const classTypeHandle = (e) => {
         const input = e.target.value;
         setClassType(input);
@@ -63,53 +65,48 @@ export default function ToDoAddModal(props) {
             setClassType('');
         }
     }
-    const classDelete = (index) =>{
+    const classDelete = (index) => {
         const toRemoveItem = classes[index];
-        setClasses(classes.filter(item=>item!==toRemoveItem));
+        setClasses(classes.filter(item => item !== toRemoveItem));
     }
 
-
-    const [todoMemo, setTodoMemo] = useState('');
     const textAreaResize = (e) => {
         setTodoMemo(e.target.value);
         e.target.style.height = 'auto'; //height 초기화
         e.target.style.height = e.target.scrollHeight + 4 + 'px';
     }
-    const todoAdd = async () => {
-        const postDeadline = new Date(parseInt(year),parseInt(month)-1
-            ,parseInt(date),parseInt(hour),parseInt(minute));
+
+
+    const todoModify = async () => {
+        const postDeadline = new Date(parseInt(year), parseInt(month) - 1
+            , parseInt(date), parseInt(hour), parseInt(minute));
         const authHeader = await getAuthHeader();
-        axios.post('/api/todo/add', {
-            title : title
-            ,deadline : postDeadline.toISOString()
-            ,classes : classes
-            ,depth : parseInt(modalType)
-            ,memo : todoMemo
-            ,parentPlanId : props.parentPlan
-        },{
+        axios.post('/api/todo/modify', {
+            planId : planDetail.planId
+            , title: title
+            , deadline: postDeadline.toISOString()
+            , classes: classes
+            , memo: todoMemo
+        }, {
             headers: {
                 Authorization: authHeader,
             },
-        }).then(res=>{
+        }).then(res => {
             console.log(res);
-            if(res.status === 200){
-                //투두리스트 업데이트 하라고..
-                if(modalType === '1'){
-                    //depth 1짜리 추가할 때는 그냥 한번 추가만 해주면 됨
-                    props.setUpdateTrigger(!props.updateTrigger);
-                }else{
-                    // depth 2,3인 리스트를 추가할 때에는,
-                    // 닫혀있었으면 펼치고
-                    // parent의 아가들을 다시 불러와야함.
-                    props.childrenUpdateFunc();
-                }
-
-            }//뭐... else면 오류 한번 띄워야겠지만... 일단 뭐..
-        }).finally(()=>{
+            if (res.status === 200) {
+                myLineUpdateFunc();
+            }
+        }).catch(error =>{
+            console.error('update 실패 : ',error);
+        }).finally(() => {
             modalClose();
         })
     }
 
+
+    const modalClose = function () {
+        setModalType('');
+    }
     return (
         <div className={'modal-white'}>
             <button onClick={modalClose} className={'modal-close'}><img src={x표시} alt="닫기"/></button>
@@ -122,8 +119,8 @@ export default function ToDoAddModal(props) {
                         <td className={'modal-right'}>
                             <div className={'to-do-title-div'}>
                                 <input type="text" id={'to-do-title'} placeholder={'20자 이내'}
-                                maxLength={20} onChange={e => setTitle(e.target.value)}
-                                ref={modalTitleRef}/>
+                                       maxLength={20} onChange={e => setTitle(e.target.value)}
+                                       ref={modalTitleRef} value={title}/>
                             </div>
                         </td>
                     </tr>
@@ -151,14 +148,14 @@ export default function ToDoAddModal(props) {
                         <td className={'modal-right'}>
                             <div className={'to-do-class-div'}>
                                 <input type="text" id={'to-do-class'}
-                                    onChange={classTypeHandle} ref={classTypeRef}
-                                    placeholder={'10자 이내'}
-                                    maxLength={10}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            classAdd(); // 엔터 키가 눌렸을 때 classAdd 함수를 실행
-                                        }
-                                    }}/>
+                                       onChange={classTypeHandle} ref={classTypeRef}
+                                       placeholder={'10자 이내'}
+                                       maxLength={10}
+                                       onKeyDown={(e) => {
+                                           if (e.key === 'Enter') {
+                                               classAdd(); // 엔터 키가 눌렸을 때 classAdd 함수를 실행
+                                           }
+                                       }}/>
                                 <button className={'class-add'} onClick={classAdd}>
                                     추가
                                 </button>
@@ -173,7 +170,7 @@ export default function ToDoAddModal(props) {
                                     return (
                                         <div key={itemIndex} className={'to-do-class-item'}>
                                             {classItem}
-                                            <button onClick={()=>{
+                                            <button onClick={() => {
                                                 classDelete(itemIndex);
                                             }}><img src={x표시} alt={'X'}/></button>
                                         </div>
@@ -195,9 +192,12 @@ export default function ToDoAddModal(props) {
                     </tbody>
                 </table>
                 <button className={'modal-buttons modal-button-left'} type={"button"}
-                onClick={modalClose}>취소</button>
+                        onClick={modalClose}>취소
+                </button>
                 <button className={'modal-buttons modal-button-right'} type={"button"}
-                onClick={todoAdd}>완료</button>
+                onClick={todoModify}>
+                    완료
+                </button>
             </div>
         </div>
     )

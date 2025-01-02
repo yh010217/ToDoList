@@ -1,10 +1,23 @@
-import '../../../../css/Header.css'
+import '../../../css/Header.css'
 import {Link, useNavigate} from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
 import {useContext, useEffect, useState} from "react";
-import LogoutButton from "./component/logout/LogoutButton";
-import {getAuthHeader} from "../../../../utils/auth";
-import {HeaderContext} from "../../../../context/HeaderContext";
+import LogoutButton from "./logout/LogoutButton";
+import {getAuthHeader} from "../../../utils/auth";
+import {HeaderContext} from "../../../context/HeaderContext";
+
+const headerFunction = async (setLoginNickname) => {
+    const auth = await getAuthHeader();
+    if (auth && auth.startsWith("Bearer ")) {
+        const token = auth.split(' ')[1];
+        const decodedToken = jwtDecode(token);
+
+        setLoginNickname(decodedToken.nickname);
+
+    } else {
+        setLoginNickname('');
+    }
+}
 
 export default function Header() {
 
@@ -16,19 +29,7 @@ export default function Header() {
     const [loginList, setLoginList] = useState('none');
 
     useEffect(() => {
-        const headerFunction = async () => {
-            const auth = await getAuthHeader();
-            if (auth && auth.startsWith("Bearer ")) {
-                const token = auth.split(' ')[1];
-                const decodedToken = jwtDecode(token);
-
-                setLoginNickname(decodedToken.nickname);
-
-            } else {
-                setLoginNickname('');
-            }
-        }
-        headerFunction();
+        headerFunction(setLoginNickname);
     }, [headerUpdate]);
 
     const userClick = function () {
@@ -42,6 +43,7 @@ export default function Header() {
             navigate('/login');
         }
     }
+
     return (
         <div className={"header-div"}>
             <Link to="/" className={"header-title"}>wooli.st</Link>
