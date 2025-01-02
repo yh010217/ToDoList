@@ -1,0 +1,24 @@
+import axios from "axios";
+import {useNavigate} from "react-router-dom";
+
+
+export default function LogoutButton({headerUpdate,setHeaderUpdate,setLoginList}){
+
+    const navigate = useNavigate();
+    const logout = async function (){
+        //리프레시 토큰이 있을 때는 서버에 axios 로 삭제해달라고 요청넣기
+        await axios.post('/api/logout')
+            .then(res => {
+                console.log(res);
+            })
+
+        localStorage.removeItem('auth');
+        setHeaderUpdate(!headerUpdate);
+        setLoginList('none');
+        navigate('/');
+    }
+    return(
+        <button onClick={logout}>로그아웃</button>
+    )
+}
+
