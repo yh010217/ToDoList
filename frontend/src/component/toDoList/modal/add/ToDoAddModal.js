@@ -3,11 +3,11 @@ import x표시 from '../../../../img/x.png'
 import {useEffect, useRef, useState} from "react";
 import axios from "axios";
 import {getAuthHeader} from "../../../../utils/auth";
-import ClassSearchWindow from "../../class_search/ClassSearchWindow";
 import ToDoModalTitleTr from "../common/ToDoModalTitleTr";
 import ToDoModalDeadlineTr from "../common/ToDoModalDeadlineTr";
 import ToDoModalMemoRef from "../common/ToDoModalMemoRef";
-import ToDoClassInputTr from "../common/ToDoClassInputTr";
+import ToDoModalClassInputTr from "../common/ToDoModalClassInputTr";
+import ToDoModalClassesTr from "../common/ToDoModalClassesTr";
 
 export default function ToDoAddModal(props) {
 
@@ -45,11 +45,6 @@ export default function ToDoAddModal(props) {
 
     const [classInput, setClassInput] = useState('');
     const [classes, setClasses] = useState([]);
-
-    const classDelete = (index) => {
-        const toRemoveItem = classes[index];
-        setClasses(classes.filter(item => item !== toRemoveItem));
-    }
 
     const [todoMemo, setTodoMemo] = useState('');
 
@@ -105,28 +100,14 @@ export default function ToDoAddModal(props) {
                         setHour={setHour} setMinute={setMinute}
                     />
 
-                    <ToDoClassInputTr
+                    <ToDoModalClassInputTr
                         classInput={classInput} setClassInput={setClassInput} classInputRef={classInputRef}
                         classes={classes} setClasses={setClasses} userAllClass={props.userAllClass}
                     />
 
-                    <tr className={'modal-tr'}>
-                        <td className={'modal-left'}></td>
-                        <td className={'modal-right'}>
-                            <div className={'to-do-class-items'}>
-                                {classes.map((classItem, itemIndex) => {
-                                    return (
-                                        <div key={itemIndex} className={'to-do-class-item'}>
-                                            {classItem}
-                                            <button onClick={() => {
-                                                classDelete(itemIndex);
-                                            }}><img src={x표시} alt={'X'}/></button>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </td>
-                    </tr>
+                    <ToDoModalClassesTr
+                        classes={classes} setClasses={setClasses}
+                    />
 
                     <ToDoModalMemoRef
                         modalMemoRef={modalMemoRef} setTodoMemo={setTodoMemo}

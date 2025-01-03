@@ -2,7 +2,7 @@ import ClassSearchWindow from "../../class_search/ClassSearchWindow";
 import {useEffect, useState} from "react";
 
 
-export default function ToDoClassInputTr
+export default function ToDoModalClassInputTr
     ({
          classInput, setClassInput, classInputRef
          , classes, setClasses, userAllClass

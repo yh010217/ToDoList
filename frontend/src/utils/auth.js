@@ -74,13 +74,3 @@ export const isTokenValid = (token) => {
     return decodedToken.exp * 1000 > Date.now(); // 만료 시간 체크
 }
 
-export const tokenLogout = () => {
-    localStorage.removeItem('auth');
-    //리프레시 토큰이 있을 때는 서버에 axios 로 삭제해달라고 요청넣기
-    axios.post('/api/logout')
-        .then(res => {
-            console.log(res);
-        })
-}
-
-

@@ -5,7 +5,8 @@ import axios from "axios";
 import ToDoModalTitleTr from "../common/ToDoModalTitleTr";
 import ToDoModalDeadlineTr from "../common/ToDoModalDeadlineTr";
 import ToDoModalMemoRef from "../common/ToDoModalMemoRef";
-import ToDoClassInputTr from "../common/ToDoClassInputTr";
+import ToDoModalClassInputTr from "../common/ToDoModalClassInputTr";
+import ToDoModalClassesTr from "../common/ToDoModalClassesTr";
 
 
 export default function ToDoModifyModal
@@ -13,6 +14,10 @@ export default function ToDoModifyModal
          planDetail, setModalType, myLineUpdateFunc
         ,userAllClass
      }) {
+
+    const modalClose = function () {
+        setModalType('');
+    }
 
     const modalTitleRef = useRef();
     const classInputRef = useRef();
@@ -45,24 +50,6 @@ export default function ToDoModifyModal
     }, []);
 
 
-    const classTypeHandle = (e) => {
-        const input = e.target.value;
-        setClassInput(input);
-    }
-    const classAdd = () => {
-        //비지 않아야 추가할거임, 이미 있는 거는 더 추가 안함
-        if (classInput && classInput !== '' && !classes.includes(classInput)) {
-            setClasses([...classes, classInput]);
-            classInputRef.current.value = '';
-            setClassInput('');
-        }
-    }
-    const classDelete = (index) => {
-        const toRemoveItem = classes[index];
-        setClasses(classes.filter(item => item !== toRemoveItem));
-    }
-
-
     const todoModify = async () => {
         const postDeadline = new Date(parseInt(year), parseInt(month) - 1
             , parseInt(date), parseInt(hour), parseInt(minute));
@@ -90,9 +77,6 @@ export default function ToDoModifyModal
     }
 
 
-    const modalClose = function () {
-        setModalType('');
-    }
     return (
         <div className={'modal-white'}>
             <button onClick={modalClose} className={'modal-close'}><img src={x표시} alt="닫기"/></button>
@@ -109,28 +93,14 @@ export default function ToDoModifyModal
                         setYear={setYear} setMonth={setMonth} setDate={setDate}
                         setHour={setHour} setMinute={setMinute}
                     />
-                    <ToDoClassInputTr
+                    <ToDoModalClassInputTr
                         classInput={classInput} setClassInput={setClassInput} classInputRef={classInputRef}
                         classes={classes} setClasses={setClasses} userAllClass={userAllClass}
                     />
 
-                    <tr className={'modal-tr'}>
-                        <td className={'modal-left'}></td>
-                        <td className={'modal-right'}>
-                            <div className={'to-do-class-items'}>
-                                {classes.map((classItem, itemIndex) => {
-                                    return (
-                                        <div key={itemIndex} className={'to-do-class-item'}>
-                                            {classItem}
-                                            <button onClick={() => {
-                                                classDelete(itemIndex);
-                                            }}><img src={x표시} alt={'X'}/></button>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </td>
-                    </tr>
+                    <ToDoModalClassesTr
+                        classes={classes} setClasses={setClasses}
+                    />
 
                     <ToDoModalMemoRef
                         modalMemoRef={modalMemoRef} setTodoMemo={setTodoMemo}
