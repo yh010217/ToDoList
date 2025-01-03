@@ -2,15 +2,13 @@ import '../../css/backGround.css';
 import '../../css/toDoList/items.css';
 import '../../css/toDoList/modal.css';
 import '../../css/toDoList/selectBox.css';
-import ToDoAddModal from "./modal/ToDoAddModal";
 import {useEffect, useState, useContext} from "react";
-import ToDoDetailModal from "./modal/ToDoDetailModal";
-import ToDoModifyModal from "./modal/ToDoModifyModal";
 import {HeaderContext} from "../../context/HeaderContext";
 import ToDoSelectBoxes from "./select_boxes/ToDoSelectBoxes";
 import OutWhite from "./out_white/OutWhite";
 import ToDoListHeader from "./header/ToDoListHeader";
 import ToDoListItems from "./items/ToDoListItems";
+import ToDoModals from "./modal/ToDoModals";
 
 
 export default function ToDoList() {
@@ -42,7 +40,6 @@ export default function ToDoList() {
     const [ascDesc, setAscDesc] = useState(localStorage.getItem('asc') || 'asc');
 
 
-
     const today = new Date();
     const year = today.getFullYear()
     const month = today.getMonth();
@@ -72,29 +69,15 @@ export default function ToDoList() {
                            listOption={listOption} listSort={listSort} ascDesc={ascDesc}
             />
 
-            <div className={'modal-container'} style={{display: modalType === '' ? 'none' : 'block'}}>
-                {modalType === '1' || modalType === '2' || modalType === '3' ?
-                    <ToDoAddModal modalType={modalType} setModalType={setModalType}
-                                  year={year} month={month + 1} date={date}
-                                  updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
-                                  parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
-                                  userAllClass={userAllClass} setUserAllClass={setUserAllClass}
-                    />
-                    : modalType === 'detail' ?
-                        <ToDoDetailModal detailPlanId={detailPlanId}
-                                         planDetail={planDetail}
-                                         setPlanDetail={setPlanDetail}
-                                         setModalType={setModalType}
-                        /> :
-                        modalType === 'modify' ?
-                            <ToDoModifyModal planDetail={planDetail} setModalType={setModalType}
-                                             updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
-                                             childrenUpdateFunc={childrenUpdateFunc}
-                                             myLineUpdateFunc={myLineUpdateFunc}
-                                             userAllClass={userAllClass} setUserAllClass={setUserAllClass}
-                            /> : ''
-                }
-            </div>
+            <ToDoModals
+                modalType={modalType} setModalType={setModalType}
+                year={year} month={month} date={date}
+                updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
+                parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
+                myLineUpdateFunc={myLineUpdateFunc}
+                detailPlanId={detailPlanId} planDetail={planDetail} setPlanDetail={setPlanDetail}
+                userAllClass={userAllClass} setUserAllClass={setUserAllClass}
+            />
         </div>
     )
 }

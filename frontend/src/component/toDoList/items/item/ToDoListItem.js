@@ -13,7 +13,7 @@ export default function ToDoListItem({
                                          , setMyLineUpdateFunc, parentChildrenFunc
                                          , listOption, listSort, ascDesc
                                      }) {
-    //setModalType으로 depth도 정할거임
+
     const [planStatus, setPlanStatus] = useState(planItem.status);
     const [childrenOpen, setChildrenOpen] = useState(false);
     const [childrenItems, setChildrenItems] = useState([]);
@@ -23,36 +23,14 @@ export default function ToDoListItem({
         if (childrenOpen) {
             setChildrenItems([]);
         } else {
-            await childrenAxios();
+            await childrenAxios(planItem, listOption, listSort, ascDesc, setChildrenItems);
         }
     };
 
     const openChildren = async () => {
         setChildrenOpen(true);
-        await childrenAxios();
+        await childrenAxios(planItem, listOption, listSort, ascDesc, setChildrenItems);
     };
-
-
-    const childrenAxios = async () => {
-
-        const authHeader = await getAuthHeader();
-        axios.get('/api/todo/get-children/' + planItem.planId
-            + '/' + listOption + '/'
-            + listSort + '/' + ascDesc, {
-                headers: {
-                    Authorization: authHeader,
-                },
-            }
-        ).then(res => {
-            if (res.status === 200) {
-                setChildrenItems(res.data);
-            } else {
-                throw new Error('리스트 받아오기 실패')
-            }
-        }).catch(error => {
-            console.error(error);
-        })
-    }
 
     const itemRightRef = useRef();
     const statusRef = useRef();
@@ -92,77 +70,33 @@ export default function ToDoListItem({
         }
     }, [listOption, listSort, ascDesc, planStatus])
 
-    const statusChange = async (changeStatus) => {
-        const authHeader = await getAuthHeader();
-        axios.post('/api/todo/change-status'
-            , {
-                planId: planItem.planId.toString()
-                , status: changeStatus
-            }, {
-                headers: {
-                    Authorization: authHeader,
-                },
-            }).then(res => {
-            if (res.status === 200) {
-                setPlanStatus(changeStatus);
-            }
-        })
-    }
-    const completePlan = () => {
-        let changeStatus = planStatus === 0 ? 1 : 0;
-        statusChange(changeStatus);
-    }
-    const cancelPlan = () => {
-        let changeStatus = planStatus === 2 ? 0 : 2;
-        statusChange(changeStatus);
-    }
+    // right 에 넣으려니 너무 복잡해져서 따로 뺌
     const addChild = async () => {
         await openChildren();
         setModalType(planItem.depth + 1 + '');
         setParentPlan(planItem.planId);
-        setChildrenUpdateFunc(() => childrenAxios);
-    }
-    const itemDelete = async () => {
-        const authHeader = await getAuthHeader();
-        axios.delete('/api/todo/delete/' + planItem.planId, {
-            headers: {
-                Authorization: authHeader,
-            }
-        }).then(res => {
-            if (res.status === 200) {
-                if (planItem.depth === 1) {
-                    setUpdateTrigger(!updateTrigger);
-                } else {
-                    parentChildren();
-                }
-
-            }
-        })
+        setChildrenUpdateFunc(() => () => childrenAxios(planItem, listOption, listSort, ascDesc, setChildrenItems));
     }
 
-    const getDetail = () => {
-        setModalType('detail');
-        setDetailPlan(planItem.planId);
-        // 어차피 depth 1은 parentChildrenFunc를 그냥 전체 update로 해놨음
-        if (planItem.depth === 1) {
-            setMyLineUpdateFunc(parentChildrenFunc)
-        } else {
-            setMyLineUpdateFunc(() => parentChildrenFunc);
-        }
-    }
 
     return (
         <div className={'item-depth-' + planItem.depth}>
             <div className={'plan-item'}>
 
-                <ToDoItemLeft planItem={planItem} childrenOpen={childrenOpen} toggleChildren={toggleChildren}/>
+                <ToDoItemLeft
+                    planItem={planItem} childrenOpen={childrenOpen}
+                    toggleChildren={toggleChildren}/>
+
                 <ToDoItemRight
                     itemRightRef={itemRightRef} statusRef={statusRef}
-                    planItem={planItem} planStatus={planStatus}
+                    planItem={planItem} planStatus={planStatus} setPlanStatus={setPlanStatus}
                     rightExpand={rightExpand} expandRight={expandRight}
-                    completePlan={completePlan} cancelPlan={cancelPlan}
-                    getDetail={getDetail} addChild={addChild} itemDelete={itemDelete}
+                    addChild={addChild} setModalType={setModalType}
+                    setDetailPlan={setDetailPlan} setMyLineUpdateFunc={setMyLineUpdateFunc}
+                    parentChildrenFunc={parentChildrenFunc} setUpdateTrigger={setUpdateTrigger}
+                    updateTrigger={updateTrigger} parentChildren={parentChildren}
                 />
+
             </div>
             <div>
                 {
@@ -174,7 +108,7 @@ export default function ToDoListItem({
                                       parentChildren={openChildren}
                                       setDetailPlan={setDetailPlan}
                                       setMyLineUpdateFunc={setMyLineUpdateFunc}
-                                      parentChildrenFunc={childrenAxios}
+                                      parentChildrenFunc={() => childrenAxios(planItem, listOption, listSort, ascDesc, setChildrenItems)}
                                       listOption={listOption}
                                       listSort={listSort}
                                       ascDesc={ascDesc}
@@ -183,4 +117,25 @@ export default function ToDoListItem({
             </div>
         </div>
     )
+}
+
+const childrenAxios = async (planItem, listOption, listSort, ascDesc, setChildrenItems) => {
+
+    const authHeader = await getAuthHeader();
+    axios.get('/api/todo/get-children/' + planItem.planId
+        + '/' + listOption + '/'
+        + listSort + '/' + ascDesc, {
+            headers: {
+                Authorization: authHeader,
+            },
+        }
+    ).then(res => {
+        if (res.status === 200) {
+            setChildrenItems(res.data);
+        } else {
+            throw new Error('리스트 받아오기 실패')
+        }
+    }).catch(error => {
+        console.error(error);
+    })
 }

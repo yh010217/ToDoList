@@ -3,14 +3,40 @@ import xMark from "../../../../../img/x.png";
 import memoMark from "../../../../../img/메모.png";
 import addMark from "../../../../../img/추가.png";
 import deleteMark from "../../../../../img/삭제.png";
+import {getAuthHeader} from "../../../../../utils/auth";
+import axios from "axios";
 
 export default function ToDoItemRight(
     {
-        itemRightRef, statusRef, planItem, planStatus
-        , rightExpand, expandRight, completePlan
-        , cancelPlan, getDetail, addChild, itemDelete
+        planItem, itemRightRef, statusRef, planStatus
+        , rightExpand, expandRight, addChild
+        , setPlanStatus, setModalType
+        , setDetailPlan, setMyLineUpdateFunc, parentChildrenFunc
+        , setUpdateTrigger, updateTrigger, parentChildren
     }
 ) {
+
+
+    const completePlan = async () => {
+        let changeStatus = planStatus === 0 ? 1 : 0;
+        await statusChange(planItem, setPlanStatus, changeStatus);
+    }
+    const cancelPlan = async () => {
+        let changeStatus = planStatus === 2 ? 0 : 2;
+        await statusChange(planItem, setPlanStatus, changeStatus);
+    }
+
+    const getDetail = () => {
+        setModalType('detail');
+        setDetailPlan(planItem.planId);
+        // 어차피 depth 1은 parentChildrenFunc를 그냥 전체 update로 해놨음
+        if (planItem.depth === 1) {
+            setMyLineUpdateFunc(parentChildrenFunc)
+        } else {
+            setMyLineUpdateFunc(() => parentChildrenFunc);
+        }
+    }
+
     return (<div className={'plan-right'} ref={itemRightRef}>
         <button className={'right-expand-button ' + (rightExpand ? 'expanded' : 'close')}
                 onClick={expandRight}>&lt;</button>
@@ -66,7 +92,8 @@ export default function ToDoItemRight(
                 </div>
         }
         <div className={'delete-button-div'}>
-            <button className={'delete-button'} onClick={itemDelete}>
+            <button className={'delete-button'}
+                    onClick={() => itemDelete(planItem, setUpdateTrigger, updateTrigger, parentChildren)}>
                 <img src={deleteMark} alt="delete"/>
             </button>
             <br/>
@@ -75,4 +102,38 @@ export default function ToDoItemRight(
                         </span>
         </div>
     </div>)
+}
+
+const statusChange = async (planItem, setPlanStatus, changeStatus) => {
+    const authHeader = await getAuthHeader();
+    axios.post('/api/todo/change-status'
+        , {
+            planId: planItem.planId.toString()
+            , status: changeStatus
+        }, {
+            headers: {
+                Authorization: authHeader,
+            },
+        }).then(res => {
+        if (res.status === 200) {
+            setPlanStatus(changeStatus);
+        }
+    })
+}
+const itemDelete = async (planItem, setUpdateTrigger, updateTrigger, parentChildren) => {
+    const authHeader = await getAuthHeader();
+    axios.delete('/api/todo/delete/' + planItem.planId, {
+        headers: {
+            Authorization: authHeader,
+        }
+    }).then(res => {
+        if (res.status === 200) {
+            if (planItem.depth === 1) {
+                setUpdateTrigger(!updateTrigger);
+            } else {
+                parentChildren();
+            }
+
+        }
+    })
 }

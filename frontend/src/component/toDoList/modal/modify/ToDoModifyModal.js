@@ -1,13 +1,14 @@
-import x표시 from "../../../img/x.png";
+import x표시 from "../../../../img/x.png";
 import {useEffect, useRef, useState} from "react";
-import {getAuthHeader} from "../../../utils/auth";
+import {getAuthHeader} from "../../../../utils/auth";
 import axios from "axios";
+import ToDoModalTitleTr from "../common/ToDoModalTitleTr";
+import ToDoModalDeadlineTr from "../common/ToDoModalDeadlineTr";
+import ToDoModalMemoRef from "../common/ToDoModalMemoRef";
 
 
 export default function ToDoModifyModal({
-                                            planDetail, setModalType
-                                            , updateTrigger, setUpdateTrigger
-                                            , childrenUpdateFunc, myLineUpdateFunc
+                                            planDetail, setModalType, myLineUpdateFunc
                                         }) {
 
     const modalTitleRef = useRef();
@@ -41,18 +42,6 @@ export default function ToDoModifyModal({
     }, []);
 
 
-    const dateChange = function (e) {
-        let date_value = e.target.value;
-        setYear(date_value.split("-")[0]);
-        setMonth(date_value.split("-")[1]);
-        setDate(date_value.split("-")[2]);
-    }
-    const timeChange = function (e) {
-        let time_value = e.target.value;
-        setHour(time_value.split(":")[0]);
-        setMinute(time_value.split(":")[1]);
-    }
-
     const classTypeHandle = (e) => {
         const input = e.target.value;
         setClassType(input);
@@ -70,19 +59,13 @@ export default function ToDoModifyModal({
         setClasses(classes.filter(item => item !== toRemoveItem));
     }
 
-    const textAreaResize = (e) => {
-        setTodoMemo(e.target.value);
-        e.target.style.height = 'auto'; //height 초기화
-        e.target.style.height = e.target.scrollHeight + 4 + 'px';
-    }
-
 
     const todoModify = async () => {
         const postDeadline = new Date(parseInt(year), parseInt(month) - 1
             , parseInt(date), parseInt(hour), parseInt(minute));
         const authHeader = await getAuthHeader();
-        axios.post('/api/todo/modify', {
-            planId : planDetail.planId
+        await axios.post('/api/todo/modify', {
+            planId: planDetail.planId
             , title: title
             , deadline: postDeadline.toISOString()
             , classes: classes
@@ -96,8 +79,8 @@ export default function ToDoModifyModal({
             if (res.status === 200) {
                 myLineUpdateFunc();
             }
-        }).catch(error =>{
-            console.error('update 실패 : ',error);
+        }).catch(error => {
+            console.error('update 실패 : ', error);
         }).finally(() => {
             modalClose();
         })
@@ -114,34 +97,15 @@ export default function ToDoModifyModal({
             <div className={'modal-contents'}>
                 <table id={'modal-todo-table'}>
                     <tbody>
-                    <tr className={'modal-tr'}>
-                        <td className={'modal-left'}><label htmlFor={"to-do-title"}>제목</label></td>
-                        <td className={'modal-right'}>
-                            <div className={'to-do-title-div'}>
-                                <input type="text" id={'to-do-title'} placeholder={'20자 이내'}
-                                       maxLength={20} onChange={e => setTitle(e.target.value)}
-                                       ref={modalTitleRef} value={title}/>
-                            </div>
-                        </td>
-                    </tr>
+                    <ToDoModalTitleTr
+                        title={title} setTitle={setTitle} modalTitleRef={modalTitleRef}
+                    />
 
-                    <tr className={'modal-tr'}>
-                        <td className={'modal-left'}><label htmlFor={"to-do-deadline"}>기간</label></td>
-                        <td className={'modal-right'}>
-                            <div className={'to-do-deadline-div'}>
-                                <div className={'date-text'}>
-                                    <span>{year}년 {month}월 {date}일</span>
-                                </div>
-                                <input type="date" id={'to-do-deadline'}
-                                       onChange={dateChange}/>
-                                <div className={'time-text'}>
-                                    <span>{hour}시 {minute}분</span>
-                                </div>
-                                <input type="time" id={'to-do-deadline-time'}
-                                       onChange={timeChange}/>
-                            </div>
-                        </td>
-                    </tr>
+                    <ToDoModalDeadlineTr
+                        year={year} month={month} date={date} hour={hour} minute={minute}
+                        setYear={setYear} setMonth={setMonth} setDate={setDate}
+                        setHour={setHour} setMinute={setMinute}
+                    />
 
                     <tr className={'modal-tr'}>
                         <td className={'modal-left'}><label htmlFor={"to-do-class"}>구분</label></td>
@@ -180,22 +144,16 @@ export default function ToDoModifyModal({
                         </td>
                     </tr>
 
-                    <tr className={'modal-tr'}>
-                        <td className={'modal-left'}><label htmlFor={"to-do-memo"}>메모</label></td>
-                        <td className={'modal-right'}>
-                            <div className={'to-do-title-div'}>
-                                <textarea id={'to-do-memo'}
-                                          rows={1} onChange={textAreaResize} ref={modalMemoRef}/>
-                            </div>
-                        </td>
-                    </tr>
+                    <ToDoModalMemoRef
+                        modalMemoRef={modalMemoRef} setTodoMemo={setTodoMemo}
+                    />
                     </tbody>
                 </table>
                 <button className={'modal-buttons modal-button-left'} type={"button"}
                         onClick={modalClose}>취소
                 </button>
                 <button className={'modal-buttons modal-button-right'} type={"button"}
-                onClick={todoModify}>
+                        onClick={todoModify}>
                     완료
                 </button>
             </div>

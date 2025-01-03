@@ -3,21 +3,21 @@ import {useEffect, useState} from "react";
 
 export default function ClassSearchWindow
     ({
-         classType,
-         classTypeHandleText,
+         classInput,
+         classInputClickHandle,
          userAllClass,
          classTypeWidth,
          setClassTypeFocus
      }) {
     const [includeClass, setIncludeClass] = useState(userAllClass);
     useEffect(() => {
-        const currentIncludeClass = userAllClass.filter(item => item.className.includes(classType));
+        const currentIncludeClass = userAllClass.filter(item => item.className.includes(classInput));
         setIncludeClass(currentIncludeClass);
-    }, [classType]);
+    }, [classInput]);
 
     const clickSearch = (className) => {
         setClassTypeFocus(false);
-        classTypeHandleText(className);
+        classInputClickHandle(className);
     }
     return (
         <div className={'class-search-window'} style={{width: classTypeWidth + 'px'}}>

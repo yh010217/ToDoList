@@ -1,9 +1,9 @@
-import x표시 from "../../../img/x.png";
-import detailImg from "../../../img/detail.png";
-import '../../../css/toDoList/modal.css';
+import x표시 from "../../../../img/x.png";
+import detailImg from "../../../../img/detail.png";
+import '../../../../css/toDoList/modal.css';
 import {useEffect, useState} from "react";
 import axios from "axios";
-import {getAuthHeader} from "../../../utils/auth";
+import {getAuthHeader} from "../../../../utils/auth";
 import {useNavigate} from "react-router-dom";
 
 export default function ToDoDetailModal({
@@ -18,37 +18,7 @@ export default function ToDoDetailModal({
     const [classes, setClasses] = useState([]);
 
     useEffect(() => {
-
-        const getDetailAxios = async () => {
-            const authHeader = await getAuthHeader();
-
-            if (authHeader) {
-
-                localStorage.setItem('auth', authHeader);
-
-                axios.get('/api/todo/detail/' + detailPlanId, {
-                    headers: {
-                        Authorization: authHeader,
-                    },
-                }).then(res => {
-                    if (res.status === 200) {
-                        setPlanDetail(res.data);
-                        setClasses(res.data.classes);
-                        setDeadline(res.data.deadline)
-                    } else {
-                        throw new Error('리스트 받아오기 실패')
-                    }
-                }).catch(error => {
-                    console.error(error);
-                })
-            } else {
-                alert('로그인 후 진행해 주세요');
-                localStorage.removeItem('auth');
-                navigate('/');
-            }
-
-        }
-        getDetailAxios();
+        getDetailAxios(detailPlanId,setPlanDetail,setClasses,setDeadline,navigate);
     }, [])
 
 
@@ -157,4 +127,33 @@ export default function ToDoDetailModal({
             </div>
         </div>
     </>
+}
+
+const getDetailAxios = async (detailPlanId,setPlanDetail,setClasses,setDeadline,navigate) => {
+    const authHeader = await getAuthHeader();
+
+    if (authHeader) {
+
+        localStorage.setItem('auth', authHeader);
+
+        axios.get('/api/todo/detail/' + detailPlanId, {
+            headers: {
+                Authorization: authHeader,
+            },
+        }).then(res => {
+            if (res.status === 200) {
+                setPlanDetail(res.data);
+                setClasses(res.data.classes);
+                setDeadline(res.data.deadline)
+            } else {
+                throw new Error('리스트 받아오기 실패')
+            }
+        }).catch(error => {
+            console.error(error);
+        })
+    } else {
+        alert('로그인 후 진행해 주세요');
+        navigate('/');
+    }
+
 }

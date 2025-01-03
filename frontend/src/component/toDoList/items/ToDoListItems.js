@@ -16,7 +16,6 @@ export default function ToDoListItems({
     const [planList, setPlanList] = useState([]);
 
     useEffect(() => {
-
         const authHeaderFunc = async () => {
             const authHeader = await getAuthHeader();
             if (authHeader) {
