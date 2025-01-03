@@ -5,14 +5,13 @@ import ToDoModifyModal from "./modify/ToDoModifyModal";
 
 export default function ToDoModals
     ({
-         modalType, setModalType,
+         detailPlanId, modalType, setModalType,
          year, month, date,
          updateTrigger, setUpdateTrigger,
          parentPlan, childrenUpdateFunc,
-         myLineUpdateFunc,
-         detailPlanId, planDetail, setPlanDetail,
-         userAllClass, setUserAllClass
-    }) {
+         myLineUpdateFunc, userAllClass,
+         planDetail, setPlanDetail
+     }) {
 
     const renderModal = () => {
         switch (modalType) {
@@ -23,7 +22,7 @@ export default function ToDoModals
                                      year={year} month={month + 1} date={date}
                                      updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
                                      parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
-                                     userAllClass={userAllClass} setUserAllClass={setUserAllClass}
+                                     userAllClass={userAllClass}
                 />
             case 'detail':
                 return <ToDoDetailModal detailPlanId={detailPlanId}
@@ -34,7 +33,7 @@ export default function ToDoModals
             case 'modify':
                 return <ToDoModifyModal planDetail={planDetail} setModalType={setModalType}
                                         myLineUpdateFunc={myLineUpdateFunc}
-                                        userAllClass={userAllClass} setUserAllClass={setUserAllClass}
+                                        userAllClass={userAllClass}
                 />
             default:
                 return ''

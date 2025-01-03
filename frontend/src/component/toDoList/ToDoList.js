@@ -76,7 +76,7 @@ export default function ToDoList() {
                 parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
                 myLineUpdateFunc={myLineUpdateFunc}
                 detailPlanId={detailPlanId} planDetail={planDetail} setPlanDetail={setPlanDetail}
-                userAllClass={userAllClass} setUserAllClass={setUserAllClass}
+                userAllClass={userAllClass}
             />
         </div>
     )

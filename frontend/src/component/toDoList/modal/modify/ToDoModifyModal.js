@@ -5,14 +5,17 @@ import axios from "axios";
 import ToDoModalTitleTr from "../common/ToDoModalTitleTr";
 import ToDoModalDeadlineTr from "../common/ToDoModalDeadlineTr";
 import ToDoModalMemoRef from "../common/ToDoModalMemoRef";
+import ToDoClassInputTr from "../common/ToDoClassInputTr";
 
 
-export default function ToDoModifyModal({
-                                            planDetail, setModalType, myLineUpdateFunc
-                                        }) {
+export default function ToDoModifyModal
+    ({
+         planDetail, setModalType, myLineUpdateFunc
+        ,userAllClass
+     }) {
 
     const modalTitleRef = useRef();
-    const classTypeRef = useRef();
+    const classInputRef = useRef();
     const modalMemoRef = useRef();
 
     const [title, setTitle] = useState('');
@@ -25,7 +28,7 @@ export default function ToDoModifyModal({
     const [minute, setMinute] = useState('');
 
 
-    const [classType, setClassType] = useState('');
+    const [classInput, setClassInput] = useState('');
     const [classes, setClasses] = useState(planDetail.classes);
 
     const [todoMemo, setTodoMemo] = useState('');
@@ -44,14 +47,14 @@ export default function ToDoModifyModal({
 
     const classTypeHandle = (e) => {
         const input = e.target.value;
-        setClassType(input);
+        setClassInput(input);
     }
     const classAdd = () => {
         //비지 않아야 추가할거임, 이미 있는 거는 더 추가 안함
-        if (classType && classType !== '' && !classes.includes(classType)) {
-            setClasses([...classes, classType]);
-            classTypeRef.current.value = '';
-            setClassType('');
+        if (classInput && classInput !== '' && !classes.includes(classInput)) {
+            setClasses([...classes, classInput]);
+            classInputRef.current.value = '';
+            setClassInput('');
         }
     }
     const classDelete = (index) => {
@@ -106,26 +109,11 @@ export default function ToDoModifyModal({
                         setYear={setYear} setMonth={setMonth} setDate={setDate}
                         setHour={setHour} setMinute={setMinute}
                     />
+                    <ToDoClassInputTr
+                        classInput={classInput} setClassInput={setClassInput} classInputRef={classInputRef}
+                        classes={classes} setClasses={setClasses} userAllClass={userAllClass}
+                    />
 
-                    <tr className={'modal-tr'}>
-                        <td className={'modal-left'}><label htmlFor={"to-do-class"}>구분</label></td>
-                        <td className={'modal-right'}>
-                            <div className={'to-do-class-div'}>
-                                <input type="text" id={'to-do-class'}
-                                       onChange={classTypeHandle} ref={classTypeRef}
-                                       placeholder={'10자 이내'}
-                                       maxLength={10}
-                                       onKeyDown={(e) => {
-                                           if (e.key === 'Enter') {
-                                               classAdd(); // 엔터 키가 눌렸을 때 classAdd 함수를 실행
-                                           }
-                                       }}/>
-                                <button className={'class-add'} onClick={classAdd}>
-                                    추가
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
                     <tr className={'modal-tr'}>
                         <td className={'modal-left'}></td>
                         <td className={'modal-right'}>
