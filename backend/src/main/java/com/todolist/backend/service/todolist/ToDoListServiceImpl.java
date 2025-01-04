@@ -14,6 +14,8 @@ import org.modelmapper.TypeMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,6 +28,8 @@ public class ToDoListServiceImpl implements ToDoListService {
     private final PlanClassesRepository planClassesRepository;
 
     private final ModelMapper modelMapper;
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 
     private final TypeMap<PlanEntity, ToDoListDTO> planEntityToTDLTypeMap;
@@ -68,7 +72,7 @@ public class ToDoListServiceImpl implements ToDoListService {
             PlanEntity planEntity = PlanEntity.builder()
                     .user(tempUser)
                     .planTitle(dto.getTitle())
-                    .deadline(dto.getDeadline())
+                    .deadline(LocalDateTime.parse(dto.getDeadline(), formatter))
                     .depth(dto.getDepth())
                     .memo(dto.getMemo())
                     .parentPlan(parentPlan)
@@ -146,44 +150,12 @@ public class ToDoListServiceImpl implements ToDoListService {
     }
 
     @Override
-    public List<ToDoListDTO> getToDoList(Long uid) {
-        UserEntity tempUser = new UserEntity();
-        tempUser.setUid(uid);
-
-        List<PlanEntity> usersPlan = planRepository.getToDoList(tempUser, 1, null);
-
-        List<ToDoListDTO> toDoList = usersPlan.stream()
-                .map(planEntityToTDLTypeMap::map)
-                .toList();
-
-        return toDoList;
-    }
-
-    @Override
     public List<ToDoListDTO> getToDoList(Long uid, String option, String sort, String asc) {
 
         UserEntity tempUser = new UserEntity();
         tempUser.setUid(uid);
 
         List<PlanEntity> usersPlan = planRepository.getToDoListByCondition(tempUser, 1, null, option, sort, asc);
-
-        List<ToDoListDTO> toDoList = usersPlan.stream()
-                .map(planEntityToTDLTypeMap::map)
-                .toList();
-
-        return toDoList;
-    }
-
-    @Override
-    public List<ToDoListDTO> getChildren(Long uid, Long parentPlanId) {
-
-        UserEntity tempUser = new UserEntity();
-        tempUser.setUid(uid);
-
-        PlanEntity parentPlan = planRepository.findById(parentPlanId).orElse(null);
-        Integer parentDepth = parentPlan.getDepth();
-
-        List<PlanEntity> usersPlan = planRepository.getToDoList(tempUser, parentDepth + 1, parentPlan);
 
         List<ToDoListDTO> toDoList = usersPlan.stream()
                 .map(planEntityToTDLTypeMap::map)
@@ -254,7 +226,7 @@ public class ToDoListServiceImpl implements ToDoListService {
                 planEntity.setPlanTitle(dto.getTitle());
             }
             if(!planEntity.getDeadline().equals(dto.getDeadline())){
-                planEntity.setDeadline(dto.getDeadline());
+                planEntity.setDeadline(LocalDateTime.parse(dto.getDeadline(), formatter));
             }
             if(!planEntity.getMemo().equals(dto.getMemo())){
                 planEntity.setMemo(dto.getMemo());

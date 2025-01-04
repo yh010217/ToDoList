@@ -15,7 +15,7 @@ import java.util.List;
 @ToString
 public class ToDoListDTO {
     private String title;
-    private LocalDateTime deadline;
+    private String deadline;
     private List<String> classes;
     private Integer depth;
     private String memo;

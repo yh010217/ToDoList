@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +20,6 @@ public class ToDoListController {
 
 	@PostMapping("/add")
 	public String createToDoList(@RequestBody ToDoListDTO dto, @LoginUser Long uid) {
-		//걍... 9 더해...
-		dto.setDeadline(dto.getDeadline().plusHours(9l));
-
 		String insertResult = toDoListService.insertPlan(dto, uid);
 		return insertResult;
 	}
@@ -71,7 +69,6 @@ public class ToDoListController {
 
 	@PostMapping("/modify")
 	public String modifyToDoList(@RequestBody ToDoListDTO dto, @LoginUser Long uid) {
-		dto.setDeadline(dto.getDeadline().plusHours(9l));
 		String modifyResult = toDoListService.modifyToDoList(dto, uid);
 
 		return modifyResult;
