@@ -6,7 +6,6 @@ import ToDoModifyModal from "./modify/ToDoModifyModal";
 export default function ToDoModals
     ({
          detailPlanId, modalType, setModalType,
-         year, month, date,
          updateTrigger, setUpdateTrigger,
          parentPlan, childrenUpdateFunc,
          myLineUpdateFunc, userAllClass,
@@ -19,7 +18,6 @@ export default function ToDoModals
             case '2':
             case '3':
                 return <ToDoAddModal modalType={modalType} setModalType={setModalType}
-                                     year={year} month={month + 1} date={date}
                                      updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
                                      parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
                                      userAllClass={userAllClass}

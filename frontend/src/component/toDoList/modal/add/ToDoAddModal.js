@@ -15,11 +15,6 @@ export default function ToDoAddModal(props) {
     const modalClose = function () {
         modalTitleRef.current.value = '';
         classInputRef.current.value = '';
-        setYear(props.year);
-        setMonth(props.month);
-        setDate(props.date);
-        setHour('23');
-        setMinute('59');
         setClasses([]);
         modalMemoRef.current.value = '';
         props.setModalType('');
@@ -34,14 +29,11 @@ export default function ToDoAddModal(props) {
 
     const [title, setTitle] = useState('');
 
-    //이건 모달용이어서 props로 받아온 값이 바뀌어도 됨, 그리고 string임
-    const [year, setYear] = useState(props.year);
-    const [month, setMonth] = useState(props.month);
-    const [date, setDate] = useState(props.date);
-
-    const [hour, setHour] = useState('23');
-    const [minute, setMinute] = useState('59');
-
+    const today = new Date();
+    const todayYear = today.getFullYear()
+    const todayMonth = today.getMonth()+1 < 10 ? '0' + (today.getMonth()+1) : today.getMonth()+1;
+    const todayDate = today.getDate() < 10 ? '0' + today.getDate() : today.getDate();
+    const [deadline,setDeadline] = useState(`${todayYear}-${todayMonth}-${todayDate} 23:59`);
 
     const [classInput, setClassInput] = useState('');
     const [classes, setClasses] = useState([]);
@@ -49,12 +41,10 @@ export default function ToDoAddModal(props) {
     const [todoMemo, setTodoMemo] = useState('');
 
     const todoAdd = async () => {
-        const postDeadline = new Date(parseInt(year), parseInt(month) - 1
-            , parseInt(date), parseInt(hour), parseInt(minute));
         const authHeader = await getAuthHeader();
         axios.post('/api/todo/add', {
             title: title
-            , deadline: postDeadline.toISOString()
+            , deadline: deadline
             , classes: classes
             , depth: parseInt(modalType)
             , memo: todoMemo
@@ -95,9 +85,8 @@ export default function ToDoAddModal(props) {
                     />
 
                     <ToDoModalDeadlineTr
-                        year={year} month={month} date={date} hour={hour} minute={minute}
-                        setYear={setYear} setMonth={setMonth} setDate={setDate}
-                        setHour={setHour} setMinute={setMinute}
+                        year={todayYear} month={todayMonth} date={todayDate} hour={'23'} minute={'59'}
+                        setDeadline={setDeadline}
                     />
 
                     <ToDoModalClassInputTr

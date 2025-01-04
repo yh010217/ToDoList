@@ -71,7 +71,6 @@ export default function ToDoList() {
 
             <ToDoModals
                 modalType={modalType} setModalType={setModalType}
-                year={year} month={month} date={date}
                 updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
                 parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
                 myLineUpdateFunc={myLineUpdateFunc}

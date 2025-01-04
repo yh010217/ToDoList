@@ -12,7 +12,7 @@ import ToDoModalClassesTr from "../common/ToDoModalClassesTr";
 export default function ToDoModifyModal
     ({
          planDetail, setModalType, myLineUpdateFunc
-        ,userAllClass
+         , userAllClass
      }) {
 
     const modalClose = function () {
@@ -25,13 +25,13 @@ export default function ToDoModifyModal
 
     const [title, setTitle] = useState('');
 
-    const [year, setYear] = useState('');
-    const [month, setMonth] = useState('');
-    const [date, setDate] = useState('');
 
-    const [hour, setHour] = useState('');
-    const [minute, setMinute] = useState('');
-
+    const planYear = planDetail.deadline.slice(0, 4);
+    const planMonth = planDetail.deadline.slice(5, 7);
+    const planDate = planDetail.deadline.slice(8, 10);
+    const planHour = planDetail.deadline.slice(11, 13);
+    const planMinute = planDetail.deadline.slice(14, 16);
+    const [deadline, setDeadline] = useState(`${planYear}-${planMonth}-${planDate} ${planHour}:${planMinute}`);
 
     const [classInput, setClassInput] = useState('');
     const [classes, setClasses] = useState(planDetail.classes);
@@ -40,24 +40,17 @@ export default function ToDoModifyModal
 
     useEffect(() => {
         setTitle(planDetail.title);
-        setYear(planDetail.deadline.slice(0, 4));
-        setMonth(planDetail.deadline.slice(5, 7));
-        setDate(planDetail.deadline.slice(8, 10));
-        setHour(planDetail.deadline.slice(11, 13));
-        setMinute(planDetail.deadline.slice(14, 16));
         setTodoMemo(planDetail.memo);
         modalMemoRef.current.value = planDetail.memo;
     }, []);
 
 
     const todoModify = async () => {
-        const postDeadline = new Date(parseInt(year), parseInt(month) - 1
-            , parseInt(date), parseInt(hour), parseInt(minute));
         const authHeader = await getAuthHeader();
         await axios.post('/api/todo/modify', {
             planId: planDetail.planId
             , title: title
-            , deadline: postDeadline.toISOString()
+            , deadline: deadline
             , classes: classes
             , memo: todoMemo
         }, {
@@ -89,10 +82,10 @@ export default function ToDoModifyModal
                     />
 
                     <ToDoModalDeadlineTr
-                        year={year} month={month} date={date} hour={hour} minute={minute}
-                        setYear={setYear} setMonth={setMonth} setDate={setDate}
-                        setHour={setHour} setMinute={setMinute}
+                        year={planYear} month={planMonth} date={planDate} hour={planHour} minute={planMinute}
+                        setDeadline={setDeadline}
                     />
+
                     <ToDoModalClassInputTr
                         classInput={classInput} setClassInput={setClassInput} classInputRef={classInputRef}
                         classes={classes} setClasses={setClasses} userAllClass={userAllClass}
