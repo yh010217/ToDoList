@@ -9,6 +9,7 @@ import com.todolist.backend.repository.planClass.PlanClassRepository;
 import com.todolist.backend.repository.planClasses.PlanClassesRepository;
 import com.todolist.backend.repository.plan.PlanRepository;
 import com.todolist.backend.repository.user.UserRepository;
+import com.todolist.backend.service.plan_class.PlanClassService;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
@@ -30,24 +31,26 @@ public class ToDoListServiceImpl implements ToDoListService {
 	private final PlanClassesRepository planClassesRepository;
 	private final UserRepository userRepository;
 
-	private final ModelMapper modelMapper;
-
 	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 	private final TypeMap<PlanEntity, ToDoListDTO> planEntityToTDLTypeMap;
 
+	private final PlanClassService planClassService;
+
 	public ToDoListServiceImpl(PlanRepository planRepository
 		, PlanClassRepository planClassRepository, PlanClassesRepository planClassesRepository
-		, UserRepository userRepository, ModelMapper modelMapper) {
+		, UserRepository userRepository, ModelMapper modelMapper
+		, PlanClassService planClassService) {
 		this.planRepository = planRepository;
 		this.planClassRepository = planClassRepository;
 		this.planClassesRepository = planClassesRepository;
 		this.userRepository = userRepository;
-		this.modelMapper = modelMapper;
 
 		this.planEntityToTDLTypeMap =
 			modelMapper.createTypeMap(PlanEntity.class, ToDoListDTO.class)
 				.addMapping(PlanEntity::getPlanTitle, ToDoListDTO::setTitle);
+
+		this.planClassService = planClassService;
 	}
 
 	@Override
