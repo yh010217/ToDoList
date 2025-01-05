@@ -1,15 +1,13 @@
 package com.todolist.backend.service.todolist;
 
-import com.todolist.backend.domain.PlanClassEntity;
-import com.todolist.backend.domain.PlanClassesEntity;
 import com.todolist.backend.domain.PlanEntity;
 import com.todolist.backend.domain.UserEntity;
 import com.todolist.backend.dto.ToDoListDTO;
-import com.todolist.backend.repository.planClass.PlanClassRepository;
-import com.todolist.backend.repository.planClasses.PlanClassesRepository;
 import com.todolist.backend.repository.plan.PlanRepository;
 import com.todolist.backend.repository.user.UserRepository;
-import com.todolist.backend.service.plan_class.PlanClassService;
+import com.todolist.backend.service.todolist.plan.ToDoListPlanService;
+import com.todolist.backend.service.todolist.plan_class.ToDoListPlanClassService;
+import com.todolist.backend.service.todolist.plan_classes.ToDoListPlanClassesService;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,54 +17,51 @@ import org.modelmapper.TypeMap;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
 public class ToDoListServiceImpl implements ToDoListService {
 	/*리파지토리 주입*/
 	private final PlanRepository planRepository;
-	private final PlanClassRepository planClassRepository;
-	private final PlanClassesRepository planClassesRepository;
 	private final UserRepository userRepository;
-
-	private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 	private final TypeMap<PlanEntity, ToDoListDTO> planEntityToTDLTypeMap;
 
-	private final PlanClassService planClassService;
+	private final ToDoListPlanService toDoListPlanService;
+	private final ToDoListPlanClassService toDoListPlanClassService;
+	private final ToDoListPlanClassesService toDoListPlanClassesService;
 
 	public ToDoListServiceImpl(PlanRepository planRepository
-		, PlanClassRepository planClassRepository, PlanClassesRepository planClassesRepository
-		, UserRepository userRepository, ModelMapper modelMapper
-		, PlanClassService planClassService) {
+		, UserRepository userRepository
+		, ModelMapper modelMapper
+		, ToDoListPlanService toDoListPlanService
+		, ToDoListPlanClassService toDoListPlanClassService
+		, ToDoListPlanClassesService toDoListPlanClassesService) {
 		this.planRepository = planRepository;
-		this.planClassRepository = planClassRepository;
-		this.planClassesRepository = planClassesRepository;
 		this.userRepository = userRepository;
 
 		this.planEntityToTDLTypeMap =
 			modelMapper.createTypeMap(PlanEntity.class, ToDoListDTO.class)
 				.addMapping(PlanEntity::getPlanTitle, ToDoListDTO::setTitle);
 
-		this.planClassService = planClassService;
+		this.toDoListPlanService = toDoListPlanService;
+		this.toDoListPlanClassService = toDoListPlanClassService;
+		this.toDoListPlanClassesService = toDoListPlanClassesService;
 	}
 
 	@Override
 	@Transactional
 	public String insertPlan(ToDoListDTO dto, Long uid) {
-
 		try {
 			UserEntity user = userRepository.findById(uid).orElseThrow();
 
 			PlanEntity parentPlan = planRepository.findById(dto.getParentPlanId()).orElse(null);
 
-			PlanEntity planEntity = savePlan(dto, user, parentPlan);
+			PlanEntity planEntity = toDoListPlanService.savePlan(dto, user, parentPlan);
 
-			savePlanClass(dto, user);
+			toDoListPlanClassService.savePlanClass(dto, user);
 
-			savePlanClasses(dto, planEntity, user);
+			toDoListPlanClassesService.savePlanClasses(dto, planEntity, user);
 
 			return "complete";
 		} catch (EntityNotFoundException ex) {
@@ -78,56 +73,14 @@ public class ToDoListServiceImpl implements ToDoListService {
 		}
 	}
 
-	private PlanEntity savePlan(ToDoListDTO dto, UserEntity user, PlanEntity parentPlan) {
-		PlanEntity planEntity = PlanEntity.builder()
-			.user(user)
-			.planTitle(dto.getTitle())
-			.deadline(LocalDateTime.parse(dto.getDeadline(), formatter))
-			.depth(dto.getDepth())
-			.memo(dto.getMemo())
-			.parentPlan(parentPlan)
-			.build();
-
-		planRepository.save(planEntity);
-		return planEntity;
-	}
-
-	private void savePlanClass(ToDoListDTO dto, UserEntity user) {
-
-		Set<String> existingClassNameSet
-			= planClassRepository.findExistingClassNamesByUidAndClassNames(user, dto.getClasses());
-		List<String> dtoClasses = dto.getClasses();
-		List<PlanClassEntity> newPlanClassList = dtoClasses.stream()
-			.filter(item -> !existingClassNameSet.contains(item))
-			.map(item -> PlanClassEntity.builder().className(item).user(user).build())
-			.toList();
-
-		planClassRepository.saveAll(newPlanClassList);
-	}
-
-	private void savePlanClasses(ToDoListDTO dto, PlanEntity planEntity, UserEntity user) {
-		List<PlanClassEntity> UserClassList
-			= planClassRepository.findExistingClassByPlanAndClasses(user, dto.getClasses());
-		List<PlanClassesEntity> toSavePlanClassesList
-			= UserClassList.stream()
-			.map(item -> PlanClassesEntity.builder()
-				.planClass(item)
-				.className(item.getClassName())
-				.plan(planEntity)
-				.build())
-			.toList();
-		planClassesRepository.saveAll(toSavePlanClassesList);
-	}
-
 	@Override
 	public List<ToDoListDTO> getToDoList(Long uid, String option, String sort, String asc) {
 
-		UserEntity tempUser = new UserEntity();
-		tempUser.setUid(uid);
+		UserEntity user = userRepository.findById(uid).orElseThrow();
 
-		List<PlanEntity> usersPlan = planRepository.getToDoListByCondition(tempUser, 1, null, option, sort, asc);
-
-		List<ToDoListDTO> toDoList = usersPlan.stream()
+		List<ToDoListDTO> toDoList = planRepository
+			.getToDoListByCondition(user, 1, null, option, sort, asc)
+			.stream()
 			.map(planEntityToTDLTypeMap::map)
 			.toList();
 
@@ -137,16 +90,14 @@ public class ToDoListServiceImpl implements ToDoListService {
 	@Override
 	public List<ToDoListDTO> getChildren(Long uid, Long parentPlanId, String option, String sort, String asc) {
 
-		UserEntity tempUser = new UserEntity();
-		tempUser.setUid(uid);
+		UserEntity user = userRepository.findById(uid).orElseThrow();
 
 		PlanEntity parentPlan = planRepository.findById(parentPlanId).orElse(null);
 		Integer parentDepth = parentPlan.getDepth();
 
-		List<PlanEntity> usersPlan = planRepository.getToDoListByCondition(tempUser, parentDepth + 1, parentPlan,
-			option, sort, asc);
-
-		List<ToDoListDTO> toDoList = usersPlan.stream()
+		List<ToDoListDTO> toDoList = planRepository
+			.getToDoListByCondition(user, parentDepth + 1, parentPlan, option, sort, asc)
+			.stream()
 			.map(planEntityToTDLTypeMap::map)
 			.toList();
 
@@ -155,10 +106,6 @@ public class ToDoListServiceImpl implements ToDoListService {
 
 	@Override
 	public String deletePlan(Long planId, Long uid) {
-
-		UserEntity tempUser = new UserEntity();
-		tempUser.setUid(uid);
-		//그냥... 최소한의 보안정도...? 바로 deleteBy 해도 되긴 했겠지만...?
 		PlanEntity planEntity = planRepository.findById(planId).orElse(null);
 		if (planEntity != null && planEntity.getUser().getUid().equals(uid)) {
 			planRepository.delete(planEntity);
@@ -171,11 +118,7 @@ public class ToDoListServiceImpl implements ToDoListService {
 	public ToDoListDTO getToDoDetail(Long uid, Long planId) {
 		PlanEntity planEntity = planRepository.findById(planId).orElseThrow(EntityExistsException::new);
 		ToDoListDTO toDoDetail = planEntityToTDLTypeMap.map(planEntity);
-
-		List<String> classes = planClassesRepository.findByPlan(planEntity)
-			.stream()
-			.map(item -> item.getClassName())
-			.toList();
+		List<String> classes = toDoListPlanClassesService.getPlanClasses(planEntity);
 		toDoDetail.setClasses(classes);
 		return toDoDetail;
 	}
@@ -184,57 +127,32 @@ public class ToDoListServiceImpl implements ToDoListService {
 	@Transactional
 	public String modifyToDoList(ToDoListDTO dto, Long uid) {
 		try {
+			UserEntity user = userRepository.findById(uid).orElseThrow();
 
 			PlanEntity planEntity = planRepository.findById(dto.getPlanId()).orElseThrow();
 
-			UserEntity user = userRepository.findById(uid).orElseThrow();
 			if (!user.equals(planEntity.getUser())) {
 				throw new RuntimeException();
 			}
 
-			modifyPlan(dto, planEntity);
+			toDoListPlanService.modifyPlan(dto, planEntity);
 
+			toDoListPlanClassService.savePlanClass(dto, user);
+
+			toDoListPlanClassesService.modifyPlanClasses(dto,planEntity,user);
+
+
+			/*
 			// 현재 다 지우는 거로 돼있음 savePlanClasses 에서 다시 넣어주는 걸 사용하기 위해서
 			// 만약 필요한 것만 지우고 넣는게 더 효율적이라면 이 메서드와 savePlanClasses 메서드를 수정하기로
-			deletePlanClasses(dto, planEntity);
-
-			savePlanClass(dto, user);
-
-			savePlanClasses(dto, planEntity, user);
+			toDoListPlanClassesService.deletePlanClasses(planEntity);
+			toDoListPlanClassesService.savePlanClasses(dto, planEntity, user);
+			*/
 
 			return "complete";
 		} catch (Exception exception) {
 			return "fail";
 		}
-	}
-
-	private void modifyPlan(ToDoListDTO dto, PlanEntity planEntity) {
-		if (!planEntity.getPlanTitle().equals(dto.getTitle())) {
-			planEntity.setPlanTitle(dto.getTitle());
-		}
-		if (!planEntity.getDeadline().equals(dto.getDeadline())) {
-			planEntity.setDeadline(LocalDateTime.parse(dto.getDeadline(), formatter));
-		}
-		if (!planEntity.getMemo().equals(dto.getMemo())) {
-			planEntity.setMemo(dto.getMemo());
-		}
-		planRepository.save(planEntity);
-	}
-
-	private void deletePlanClasses(ToDoListDTO dto, PlanEntity planEntity) {
-		List<PlanClassesEntity> thisPlanClassesList = planClassesRepository.findByPlan(planEntity);
-/*
-		원래는 이게 필요한 것만 지워서 나중에 삽입할 때도 필요한 것만 넣을 수 있긴 한데,
-		이미 존재하는 클래스를 다 지우고 다시 넣는게 더 간단할 것 같아서 일단 다 지우는 걸로
-		List<PlanClassesEntity> toDeleteList = new ArrayList<>();
-		for (PlanClassesEntity item : thisPlanClassesList) { // 기존 엔티티 리스트를 기준으로
-			if (!dto.getClasses().contains(item.getClassName())) { // DTO에 없는 경우만 삭제 대상
-				toDeleteList.add(item);
-			}
-		}
-*/
-
-		planClassesRepository.deleteAll(thisPlanClassesList);
 	}
 
 	@Override
@@ -253,5 +171,4 @@ public class ToDoListServiceImpl implements ToDoListService {
 		}
 		return "fail";
 	}
-
 }

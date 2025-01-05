@@ -41,12 +41,12 @@ public class PlanQueryDSLImpl implements PlanQueryDSL{
     }
 
     @Override
-    public List<PlanEntity> getToDoListByCondition(UserEntity tempUser, int depth
+    public List<PlanEntity> getToDoListByCondition(UserEntity user, int depth
             , PlanEntity parentPlan, String option, String sort, String asc) {
 
         //일단 깊이는 모두가 조건식으로 들어갈거니깐...
         BooleanExpression listRange = planEntity.depth.eq(depth)
-                .and(planEntity.user.eq(tempUser));
+                .and(planEntity.user.eq(user));
         if(depth != 1){
             listRange = listRange.and(planEntity.parentPlan.eq(parentPlan));
         }
