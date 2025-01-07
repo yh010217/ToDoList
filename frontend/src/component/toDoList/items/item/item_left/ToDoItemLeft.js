@@ -1,5 +1,6 @@
 
 export default function ToDoItemLeft({planItem,childrenOpen,toggleChildren}){
+
     return (
         <div className={'plan-left'}>
             {planItem.depth === 3 ? '' :
@@ -7,7 +8,7 @@ export default function ToDoItemLeft({planItem,childrenOpen,toggleChildren}){
                         onClick={toggleChildren}>&gt;</button>
             }
             <div className={'plan-left-text'}>
-                <span className={'plan-title'}>{planItem.title}</span>
+                <button className={'plan-title'}>{planItem.title}</button>
                 <span className={'plan-deadline'}>&nbsp;&nbsp;...&nbsp;{
                     planItem.deadline.slice(2, 4) + '/' +
                     planItem.deadline.slice(5, 7) + '/' +

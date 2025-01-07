@@ -13,7 +13,7 @@ import java.util.Date;
 /** jwt를 발급, 검증을 하는 부분 */
 @Component
 public class JWTUtil {
-    private Long accessExpiredMs = 1*60*1000L; // 10분
+    private Long accessExpiredMs = 15*60*1000L; // 15분
     private Long refreshExpiredMs = 3*24*60*60*1000L; // 3일
 
     private SecretKey secretKey;

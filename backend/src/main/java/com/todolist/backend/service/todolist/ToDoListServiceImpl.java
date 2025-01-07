@@ -141,14 +141,6 @@ public class ToDoListServiceImpl implements ToDoListService {
 
 			toDoListPlanClassesService.modifyPlanClasses(dto,planEntity,user);
 
-
-			/*
-			// 현재 다 지우는 거로 돼있음 savePlanClasses 에서 다시 넣어주는 걸 사용하기 위해서
-			// 만약 필요한 것만 지우고 넣는게 더 효율적이라면 이 메서드와 savePlanClasses 메서드를 수정하기로
-			toDoListPlanClassesService.deletePlanClasses(planEntity);
-			toDoListPlanClassesService.savePlanClasses(dto, planEntity, user);
-			*/
-
 			return "complete";
 		} catch (Exception exception) {
 			return "fail";

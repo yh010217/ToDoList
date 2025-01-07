@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,10 +42,12 @@ public class ToDoListPlanClassesService {
 		planClassesRepository.saveAll(toSavePlanClassesList);
 	}
 
+	// 사실 이건 Detail 을 위해서 사용되는 메서드일텐데
+	// 그냥 Detail 에서 Eager 로딩 하면 이런식으로 안 접근해도 될듯
 	public List<String> getPlanClasses(PlanEntity planEntity) {
 		List<PlanClassesEntity> thisPlanClassesList = planClassesRepository.findByPlan(planEntity);
 		return thisPlanClassesList.stream()
-			.map(item -> item.getClassName())
+			.map(PlanClassesEntity::getClassName)
 			.toList();
 	}
 
@@ -78,16 +81,26 @@ public class ToDoListPlanClassesService {
 			planClassesRepository.saveAll(toSaveList);
 	}
 
+	@Modifying
+	@Transactional
 	public void deletePlanClasses(ToDoListDTO dto, PlanEntity planEntity) {
-		List<PlanClassesEntity> thisPlanClassesList = planClassesRepository.findByPlan(planEntity);
+		// List<PlanClassesEntity> thisPlanClassesList = planClassesRepository.findByPlan(planEntity);
+		// 그냥 findByPlan 하면 현재 PlanClassesEntity 의 planClass 객체가 LAZY 로딩이어서 N+1 남
+		List<PlanClassesEntity> thisPlanClassesList = planClassesRepository.findByPlanWithJoinFetch(planEntity);
 		List<String> dtoClasses = dto.getClasses();
 		List<PlanClassesEntity> toDeleteList = new ArrayList<>();
 		for (PlanClassesEntity item : thisPlanClassesList) { // 기존 엔티티 리스트를 기준으로
-			if (!dtoClasses.contains(item.getClassName())) { // DTO에 없는 경우만 삭제 대상
+			if (!dtoClasses.contains(item.getClassName())) { // DTO에서 감지가 안되면 삭제 대상
 				toDeleteList.add(item);
 			}
 		}
-		if (!toDeleteList.isEmpty())
+		if (!toDeleteList.isEmpty()) {
 			planClassesRepository.deleteAll(toDeleteList);
+			// plan_class 도 참조하고 있는 거 없으면 지우기
+			List<PlanClassEntity> toCheckClassList
+				= toDeleteList.stream().map(PlanClassesEntity::getPlanClass).toList();
+			planClassRepository.deleteNotReferenced(toCheckClassList);
+			// toCheckClassList 를 순회하면서, PlanClasses 에 존재하지 않으면 삭제하는 로직
+		}
 	}
 }

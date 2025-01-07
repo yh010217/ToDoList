@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.todolist.backend.domain.PlanClassEntity;
 import com.todolist.backend.domain.UserEntity;
 import com.todolist.backend.repository.user.UserRepository;
 
@@ -37,5 +38,14 @@ class PlanClassRepositoryTest {
 		Set<String> existingClassNames = planClassRepository.findExistingClassNamesByUidAndClassNames(user, classNames);
 
 		Assertions.assertThat(existingClassNames).isEqualTo(Set.of("백엔드", "프론트"));
+	}
+
+	@Test
+	void deleteNotReferenced(){
+		PlanClassEntity entity = planClassRepository.findById(117L).orElseThrow();
+		List<PlanClassEntity> list = new ArrayList<>();
+		list.add(entity);
+		planClassRepository.deleteNotReferenced(list);
+
 	}
 }
