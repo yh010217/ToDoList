@@ -17,7 +17,7 @@ export default function ToDoModalClassesTr
             <div className={'to-do-class-items'}>
                 {classes.map((classItem, itemIndex) => {
                     return (
-                        <div key={itemIndex} className={'to-do-class-item'}>
+                        <div key={itemIndex} className={'to-do-class-item to-do-class-modifying'}>
                             {classItem}
                             <button onClick={() => {
                                 classDelete(itemIndex);

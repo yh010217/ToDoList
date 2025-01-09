@@ -1,5 +1,6 @@
 package com.todolist.backend.service.todolist;
 
+import com.todolist.backend.domain.PlanClassesEntity;
 import com.todolist.backend.domain.PlanEntity;
 import com.todolist.backend.domain.UserEntity;
 import com.todolist.backend.dto.ToDoListDTO;
@@ -12,8 +13,10 @@ import com.todolist.backend.service.todolist.plan_classes.ToDoListPlanClassesSer
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
+import org.modelmapper.spi.MappingContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,17 +45,33 @@ public class ToDoListServiceImpl implements ToDoListService {
 
 		this.planEntityToTDLTypeMap =
 			modelMapper.createTypeMap(PlanEntity.class, ToDoListDTO.class)
-				.addMapping(PlanEntity::getPlanTitle, ToDoListDTO::setTitle);
+				.addMapping(PlanEntity::getPlanTitle, ToDoListDTO::setTitle)
+				.addMappings(mapper -> mapper.using(planClassesToStringListConverter())
+					.map(PlanEntity::getPlanClasses, ToDoListDTO::setClasses));
 
 		this.toDoListPlanService = toDoListPlanService;
 		this.toDoListPlanClassService = toDoListPlanClassService;
 		this.toDoListPlanClassesService = toDoListPlanClassesService;
 	}
 
+	private Converter<List<PlanClassesEntity>, List<String>> planClassesToStringListConverter() {
+		return ctx -> {
+			List<PlanClassesEntity> source = ctx.getSource();
+			if (source == null)
+				return new ArrayList<>(); // null일 경우 빈 리스트 반환
+			return source.stream()
+				.map(PlanClassesEntity::getClassName) // className으로 변환
+				.toList();
+		};
+	}
+
 	@Override
 	@Transactional
 	public String insertPlan(ToDoListDTO dto, Long uid) {
 		try {
+			if (dto.getClasses().size() > 10)
+				throw new RuntimeException("Class size is over 10");
+
 			UserEntity user = userRepository.findById(uid).orElseThrow();
 
 			PlanEntity parentPlan = planRepository.findById(dto.getParentPlanId()).orElse(null);
@@ -62,6 +81,8 @@ public class ToDoListServiceImpl implements ToDoListService {
 			toDoListPlanClassService.savePlanClass(dto, user);
 
 			toDoListPlanClassesService.savePlanClasses(dto, planEntity, user);
+
+			toDoListPlanClassService.check20UnderClass(user);
 
 			return "complete";
 		} catch (EntityNotFoundException ex) {
@@ -105,10 +126,12 @@ public class ToDoListServiceImpl implements ToDoListService {
 	}
 
 	@Override
+	@Transactional
 	public String deletePlan(Long planId, Long uid) {
 		PlanEntity planEntity = planRepository.findById(planId).orElse(null);
 		if (planEntity != null && planEntity.getUser().getUid().equals(uid)) {
 			planRepository.delete(planEntity);
+			toDoListPlanClassesService.deleteNotReferencedPlanClass(planEntity);
 			return "complete";
 		}
 		return "fail";
@@ -127,19 +150,24 @@ public class ToDoListServiceImpl implements ToDoListService {
 	@Transactional
 	public String modifyToDoList(ToDoListDTO dto, Long uid) {
 		try {
+			if (dto.getClasses().size() > 10)
+				throw new RuntimeException("Class size is over 10");
+
 			UserEntity user = userRepository.findById(uid).orElseThrow();
 
 			PlanEntity planEntity = planRepository.findById(dto.getPlanId()).orElseThrow();
 
 			if (!user.equals(planEntity.getUser())) {
-				throw new RuntimeException();
+				throw new RuntimeException("Different user");
 			}
 
 			toDoListPlanService.modifyPlan(dto, planEntity);
 
 			toDoListPlanClassService.savePlanClass(dto, user);
 
-			toDoListPlanClassesService.modifyPlanClasses(dto,planEntity,user);
+			toDoListPlanClassesService.modifyPlanClasses(dto, planEntity, user);
+
+			toDoListPlanClassService.check20UnderClass(user);
 
 			return "complete";
 		} catch (Exception exception) {

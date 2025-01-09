@@ -96,11 +96,31 @@ public class ToDoListPlanClassesService {
 		}
 		if (!toDeleteList.isEmpty()) {
 			planClassesRepository.deleteAll(toDeleteList);
-			// plan_class 도 참조하고 있는 거 없으면 지우기
-			List<PlanClassEntity> toCheckClassList
-				= toDeleteList.stream().map(PlanClassesEntity::getPlanClass).toList();
-			planClassRepository.deleteNotReferenced(toCheckClassList);
+			// plan_class 에서 참조하고 있는 거 없으면 지우기
+			deleteNotReferencedPlanClass(toDeleteList);
 			// toCheckClassList 를 순회하면서, PlanClasses 에 존재하지 않으면 삭제하는 로직
 		}
 	}
+
+	@Modifying
+	@Transactional
+	public void deleteNotReferencedPlanClass(List<PlanClassesEntity> planClassesEntityList) {
+		List<PlanClassEntity> toCheckClassList
+			= planClassesEntityList.stream().map(PlanClassesEntity::getPlanClass).toList();
+		planClassRepository.deleteNotReferenced(toCheckClassList);
+	}
+
+	@Modifying
+	@Transactional
+	public int deleteNotReferencedPlanClass(PlanEntity planEntity) {
+		// List<PlanClassesEntity> thisPlanClassesList = planClassesRepository.findByPlan(planEntity); N+1 나올거 같아서 밑에거로
+		List<PlanClassesEntity> thisPlanClassesList = planClassesRepository.findWithPlanClassByPlan(planEntity);
+		// plan 만 지웠다고 plan_classes 까지 지워지지는 않고 있었음
+		planClassesRepository.deleteAll(thisPlanClassesList);
+		List<PlanClassEntity> toCheckClassList
+			= thisPlanClassesList.stream().map(PlanClassesEntity::getPlanClass).toList();
+		int deleteRow = planClassRepository.deleteNotReferenced(toCheckClassList);
+		return deleteRow;
+	}
+
 }

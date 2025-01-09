@@ -46,6 +46,7 @@ export default function ToDoModifyModal
 
 
     const todoModify = async () => {
+        if(title === ''){alert('제목을 입력해주세요.'); return;}
         const authHeader = await getAuthHeader();
         await axios.post('/api/todo/modify', {
             planId: planDetail.planId
@@ -58,7 +59,6 @@ export default function ToDoModifyModal
                 Authorization: authHeader,
             },
         }).then(res => {
-            console.log(res);
             if (res.status === 200) {
                 myLineUpdateFunc();
             }

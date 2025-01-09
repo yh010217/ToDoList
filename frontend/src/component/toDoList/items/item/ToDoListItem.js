@@ -85,7 +85,10 @@ export default function ToDoListItem({
 
                 <ToDoItemLeft
                     planItem={planItem} childrenOpen={childrenOpen}
-                    toggleChildren={toggleChildren}/>
+                    toggleChildren={toggleChildren} setModalType={setModalType}
+                    setDetailPlan={setDetailPlan} setMyLineUpdateFunc={setMyLineUpdateFunc}
+                    parentChildrenFunc={parentChildrenFunc}
+                />
 
                 <ToDoItemRight
                     itemRightRef={itemRightRef} statusRef={statusRef}
@@ -101,17 +104,14 @@ export default function ToDoListItem({
             <div>
                 {
                     childrenItems.map(item =>
-                        <ToDoListItem key={item.planId} planItem={item}
-                                      setParentPlan={setParentPlan} setModalType={setModalType}
-                                      updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
-                                      setChildrenUpdateFunc={setChildrenUpdateFunc}
-                                      parentChildren={openChildren}
-                                      setDetailPlan={setDetailPlan}
-                                      setMyLineUpdateFunc={setMyLineUpdateFunc}
-                                      parentChildrenFunc={() => childrenAxios(planItem, listOption, listSort, ascDesc, setChildrenItems)}
-                                      listOption={listOption}
-                                      listSort={listSort}
-                                      ascDesc={ascDesc}
+                        <ToDoListItem
+                            key={item.planId} planItem={item}
+                            setParentPlan={setParentPlan} setModalType={setModalType}
+                            updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
+                            setChildrenUpdateFunc={setChildrenUpdateFunc} parentChildren={openChildren}
+                            setDetailPlan={setDetailPlan} setMyLineUpdateFunc={setMyLineUpdateFunc}
+                            parentChildrenFunc={() => childrenAxios(planItem, listOption, listSort, ascDesc, setChildrenItems)}
+                            listOption={listOption} listSort={listSort} ascDesc={ascDesc}
                         />)
                 }
             </div>

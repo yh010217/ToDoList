@@ -9,6 +9,7 @@ import OutWhite from "./out_white/OutWhite";
 import ToDoListHeader from "./header/ToDoListHeader";
 import ToDoListItems from "./items/ToDoListItems";
 import ToDoModals from "./modal/ToDoModals";
+import ToDoListClassQuery from "./class_query/ToDoListClassQuery";
 
 
 export default function ToDoList() {
@@ -33,7 +34,8 @@ export default function ToDoList() {
     const [planDetail, setPlanDetail] = useState({});
 
     const [userAllClass, setUserAllClass] = useState([]);
-
+    const [allSelected, setAllSelected] = useState(true);
+    const [selectedClass, setSelectedClass] = useState([]);
 
     const [listOption, setListOption] = useState(localStorage.getItem('option') || 'nce');
     const [listSort, setListSort] = useState(localStorage.getItem('sort') || 'name');
@@ -61,12 +63,20 @@ export default function ToDoList() {
                 updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
             />
 
-            <ToDoListItems updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
-                           setParentPlan={setParentPlan} setModalType={setModalType}
-                           setUserAllClass={setUserAllClass}
-                           setChildrenUpdateFunc={setChildrenUpdateFunc}
-                           setDetailPlanId={setDetailPlanId} setMyLineUpdateFunc={setMyLineUpdateFunc}
-                           listOption={listOption} listSort={listSort} ascDesc={ascDesc}
+            <ToDoListClassQuery
+                userAllClass={userAllClass}
+                selectedClass={selectedClass} setSelectedClass={setSelectedClass}
+                allSelected={allSelected} setAllSelected={setAllSelected}
+            />
+
+            <ToDoListItems
+                updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
+                setParentPlan={setParentPlan} setModalType={setModalType}
+                selectedClass={selectedClass} setUserAllClass={setUserAllClass}
+                allSelected={allSelected}
+                setChildrenUpdateFunc={setChildrenUpdateFunc}
+                setDetailPlanId={setDetailPlanId} setMyLineUpdateFunc={setMyLineUpdateFunc}
+                listOption={listOption} listSort={listSort} ascDesc={ascDesc}
             />
 
             <ToDoModals

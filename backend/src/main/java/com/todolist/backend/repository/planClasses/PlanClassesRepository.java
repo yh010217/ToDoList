@@ -21,4 +21,7 @@ public interface PlanClassesRepository
 
     @Query("SELECT pcs.className FROM PlanClassesEntity pcs WHERE pcs.plan = :plan")
     Set<String> findClassNameByPlan(@Param("plan") PlanEntity planEntity);
+
+    @Query("SELECT pcs FROM PlanClassesEntity pcs JOIN FETCH pcs.planClass WHERE pcs.plan = :plan")
+    List<PlanClassesEntity> findWithPlanClassByPlan(@Param("plan") PlanEntity planEntity);
 }

@@ -3,17 +3,30 @@ import {useEffect, useState} from "react";
 import {getAuthHeader} from "../../../utils/auth";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
+import {filterBySelectedClass} from "./func/filterBySelectedClass";
 
 
-export default function ToDoListItems({
-                                          updateTrigger, setUpdateTrigger, setUserAllClass
-                                          , setParentPlan, setModalType, setChildrenUpdateFunc
-                                          , setDetailPlanId, setMyLineUpdateFunc
-                                          , listOption, listSort, ascDesc
-                                      }) {
+export default function ToDoListItems
+    ({
+         updateTrigger, setUpdateTrigger
+         , setUserAllClass, selectedClass, allSelected
+         , setParentPlan, setModalType, setChildrenUpdateFunc
+         , setDetailPlanId, setMyLineUpdateFunc
+         , listOption, listSort, ascDesc
+     }) {
 
     const navigate = useNavigate();
     const [planList, setPlanList] = useState([]);
+
+    const [filterSelectedMap, setFilterSelectedMap] = useState(new Map());
+
+    useEffect(() => {
+        if (selectedClass === null || selectedClass.length === 0) return;
+        const tempFilterSelectedMap = new Map(
+            selectedClass.map(item => [item.className, item.selected])
+        )
+        setFilterSelectedMap(tempFilterSelectedMap);
+    }, [selectedClass]);
 
     useEffect(() => {
         const authHeaderFunc = async () => {
@@ -32,19 +45,18 @@ export default function ToDoListItems({
 
     return (<div className={'plan-items'}>
         {
-            planList.map(item => (
-                    <ToDoListItem key={item.planId} planItem={item}
-                                  updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
-                                  setParentPlan={setParentPlan} setModalType={setModalType}
-                                  setChildrenUpdateFunc={setChildrenUpdateFunc}
-                                  setDetailPlan={setDetailPlanId}
-                                  setMyLineUpdateFunc={setMyLineUpdateFunc}
-                                  parentChildrenFunc={() => () => {
-                                      setUpdateTrigger(!updateTrigger)
-                                  }}
-                                  listOption={listOption}
-                                  listSort={listSort}
-                                  ascDesc={ascDesc}
+            planList.filter(item => filterBySelectedClass(item, allSelected, filterSelectedMap)).map(item => (
+                    <ToDoListItem
+                        key={item.planId} planItem={item}
+                        updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
+                        setParentPlan={setParentPlan} setModalType={setModalType}
+                        setChildrenUpdateFunc={setChildrenUpdateFunc} setDetailPlan={setDetailPlanId}
+                        setMyLineUpdateFunc={setMyLineUpdateFunc}
+                        parentChildrenFunc={() => () => {
+                            setUpdateTrigger(!updateTrigger)
+                        }}
+                        listOption={listOption} listSort={listSort} ascDesc={ascDesc}
+                        // selectedClass, allSelected, filterSelectedMap
                     />
                 )
             )
@@ -61,6 +73,7 @@ const getTodoList = async (authHeader, listOption, listSort, ascDesc, setPlanLis
             },
         }).then(res => {
         if (res.status === 200) {
+            console.log(res.data);
             setPlanList(res.data);
         } else {
             throw new Error('리스트 받아오기 실패')

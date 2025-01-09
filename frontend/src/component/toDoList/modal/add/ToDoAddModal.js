@@ -41,6 +41,7 @@ export default function ToDoAddModal(props) {
     const [todoMemo, setTodoMemo] = useState('');
 
     const todoAdd = async () => {
+        if(title === ''){alert('제목을 입력해주세요.'); return;}
         const authHeader = await getAuthHeader();
         axios.post('/api/todo/add', {
             title: title
@@ -54,7 +55,6 @@ export default function ToDoAddModal(props) {
                 Authorization: authHeader,
             },
         }).then(res => {
-            console.log(res);
             if (res.status === 200) {
                 //투두리스트 업데이트 하라고..
                 if (modalType === '1') {
@@ -66,7 +66,6 @@ export default function ToDoAddModal(props) {
                     // parent의 아가들을 다시 불러와야함.
                     props.childrenUpdateFunc();
                 }
-
             }//뭐... else면 오류 한번 띄워야겠지만... 일단 뭐..
         }).finally(() => {
             modalClose();

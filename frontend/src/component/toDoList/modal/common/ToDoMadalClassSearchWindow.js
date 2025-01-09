@@ -1,7 +1,7 @@
-import '../../../css/toDoList/classSearch/classSearch.css';
+import '../../../../css/toDoList/classSearch/classSearch.css';
 import {useEffect, useState} from "react";
 
-export default function ClassSearchWindow
+export default function ToDoMadalClassSearchWindow
     ({
          classInput,
          classInputClickHandle,

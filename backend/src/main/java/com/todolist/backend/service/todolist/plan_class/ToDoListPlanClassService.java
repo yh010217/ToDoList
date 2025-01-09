@@ -30,4 +30,10 @@ public class ToDoListPlanClassService {
 
 		planClassRepository.saveAll(newPlanClassList);
 	}
+
+	public void check20UnderClass(UserEntity user) throws RuntimeException {
+		if(planClassRepository.countByUser(user) > 20) {
+			throw new RuntimeException("Class size is over 20");
+		}
+	}
 }

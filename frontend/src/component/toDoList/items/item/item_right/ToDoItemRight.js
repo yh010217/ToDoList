@@ -1,6 +1,5 @@
 import checkMark from "../../../../../img/checkmark.png";
 import xMark from "../../../../../img/x.png";
-import memoMark from "../../../../../img/메모.png";
 import addMark from "../../../../../img/추가.png";
 import deleteMark from "../../../../../img/삭제.png";
 import {getAuthHeader} from "../../../../../utils/auth";
@@ -10,9 +9,8 @@ export default function ToDoItemRight(
     {
         planItem, itemRightRef, statusRef, planStatus
         , rightExpand, expandRight, addChild
-        , setPlanStatus, setModalType
-        , setDetailPlan, setMyLineUpdateFunc, parentChildrenFunc
-        , setUpdateTrigger, updateTrigger, parentChildren
+        , setPlanStatus, setUpdateTrigger
+        , updateTrigger, parentChildren
     }
 ) {
 
@@ -24,17 +22,6 @@ export default function ToDoItemRight(
     const cancelPlan = async () => {
         let changeStatus = planStatus === 2 ? 0 : 2;
         await statusChange(planItem, setPlanStatus, changeStatus);
-    }
-
-    const getDetail = () => {
-        setModalType('detail');
-        setDetailPlan(planItem.planId);
-        // 어차피 depth 1은 parentChildrenFunc를 그냥 전체 update로 해놨음
-        if (planItem.depth === 1) {
-            setMyLineUpdateFunc(parentChildrenFunc)
-        } else {
-            setMyLineUpdateFunc(() => parentChildrenFunc);
-        }
     }
 
     return (<div className={'plan-right'} ref={itemRightRef}>
@@ -70,15 +57,6 @@ export default function ToDoItemRight(
                         </span>
             </div>
         }
-        <div className={'fix-button-div'}>
-            <button className={'fix-button'} onClick={getDetail}>
-                <img src={memoMark} alt="fix"/>
-            </button>
-            <br/>
-            <span className={'plan-fix-text'}>
-                        상세정보
-                    </span>
-        </div>
         {planItem.depth === 3 ? '' :
             planStatus !== 0 ? '' :
                 <div className={'child-add-button-div'}>

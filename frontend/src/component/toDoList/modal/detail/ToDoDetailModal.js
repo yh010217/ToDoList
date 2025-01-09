@@ -38,6 +38,16 @@ export default function ToDoDetailModal({
             <div className={'modal-contents'}>
                 <table id={'modal-todo-table'}>
                     <tbody>
+
+                    <tr className={'modal-tr'}>
+                        <td className={'modal-left'}><label htmlFor={"to-do-title"}>제목</label></td>
+                        <td className={'modal-right'}>
+                            <div className={'to-do-title-div to-do-title-detail-div'}>
+                                {planDetail.title}
+                            </div>
+                        </td>
+                    </tr>
+
                     <tr className={'modal-tr'}>
                         <td className={'modal-left'}><label htmlFor={"to-do-title"}>상태</label></td>
                         <td className={'modal-right'}>
@@ -60,15 +70,6 @@ export default function ToDoDetailModal({
                             </div>
                         </td>
                     </tr>
-                    <tr className={'modal-tr'}>
-                        <td className={'modal-left'}><label htmlFor={"to-do-title"}>제목</label></td>
-                        <td className={'modal-right'}>
-                            <div className={'to-do-title-div'}>
-                                {planDetail.title}
-                            </div>
-                        </td>
-                    </tr>
-
                     <tr className={'modal-tr'}>
                         <td className={'modal-left'}><label htmlFor={"to-do-deadline"}>기간</label></td>
                         <td className={'modal-right'}>
@@ -96,9 +97,9 @@ export default function ToDoDetailModal({
                                 {
                                     classes.map((item, itemIndex) => {
                                         return (
-                                            <div key={itemIndex} className={'to-do-class-item'}>
+                                            <div key={itemIndex} className={'to-do-class-item to-do-class-detail'}>
                                                 {item}
-                                                <button><img src={detailImg} alt={'detail'}/></button>
+                                                {/*<button><img src={detailImg} alt={'detail'}/></button>*/}
                                             </div>
                                         )
                                     })

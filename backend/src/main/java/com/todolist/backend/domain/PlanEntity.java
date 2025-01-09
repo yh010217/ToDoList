@@ -12,6 +12,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "plan")
@@ -62,6 +64,9 @@ public class PlanEntity {
     @LastModifiedDate
     @Column
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "plan")
+    private List<PlanClassesEntity> planClasses = new ArrayList<>();
 
 
     @Builder

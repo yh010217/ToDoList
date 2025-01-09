@@ -1,4 +1,4 @@
-import ClassSearchWindow from "../../class_search/ClassSearchWindow";
+import ToDoMadalClassSearchWindow from "./ToDoMadalClassSearchWindow";
 import {useEffect, useState} from "react";
 
 
@@ -11,6 +11,8 @@ export default function ToDoModalClassInputTr
     const [classInputFocus, setClassInputFocus] = useState(false);
 
     const [classInputWidth, setClassInputWidth] = useState(0);
+
+    const userAllClassName = userAllClass.map(item => item.className);
 
     useEffect(() => {
         setClassInputWidth(classInputRef.current.getBoundingClientRect().width);
@@ -32,6 +34,20 @@ export default function ToDoModalClassInputTr
         setClassInput(text);
     }
     const classAdd = () => {
+        // 10개 이상은 추가 안시킬거. alert로 알려주기
+        if(classes.length >= 10){
+            alert('10개 이상은 추가할 수 없습니다.');
+            return;
+        }
+
+        // 유저의 총 클래스가 20개 이상이면 안됨. alert로 알려주기
+        const totalClassName = userAllClassName.concat(classes);
+        const totalClassesLength = totalClassName.filter((v, i, a) => a.indexOf(v) === i).length;
+        if(!userAllClassName.includes(classInput) && totalClassesLength >= 20){
+            alert('한 계정에 20개 이상의 클래스는 추가할 수 없습니다.');
+            return;
+        }
+
         //비지 않아야 추가할거임, 이미 있는 거는 더 추가 안함
         if (classInput && classInput !== '' && !classes.includes(classInput)) {
             setClasses([...classes, classInput]);
@@ -61,7 +77,7 @@ export default function ToDoModalClassInputTr
                 </button>
                 {
                     classInputFocus ? <>
-                        <ClassSearchWindow
+                        <ToDoMadalClassSearchWindow
                             classInput={classInput}
                             classInputClickHandle={classInputClickHandle}
                             userAllClass={userAllClass}

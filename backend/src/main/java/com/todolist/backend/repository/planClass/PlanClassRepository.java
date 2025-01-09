@@ -35,6 +35,8 @@ public interface PlanClassRepository
 		+ "WHERE pc IN :planClassEntityList "
 		+ "AND pc NOT IN "
 		+ "(SELECT DISTINCT pcs.planClass FROM PlanClassesEntity pcs WHERE pcs.planClass IN :planClassEntityList)")
-	void deleteNotReferenced(
+	int deleteNotReferenced(
 		@Param("planClassEntityList") List<PlanClassEntity> planClassEntityList);
+
+	Long countByUser(UserEntity user);
 }

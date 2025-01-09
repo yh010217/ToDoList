@@ -148,8 +148,13 @@
     border: 1px solid rgba(0,0,0,0.2);
     background-color: #FFEFE9;
     box-shadow: 3px 3px 2px 0 #eeeeee;
-    padding: 8px 30px 4px 8px;
     border-radius: 8px;
+}
+.to-do-class-modifying{
+    padding: 8px 30px 4px 8px;
+}
+.to-do-class-detail{
+    padding: 8px 8px 4px 8px;
 }
 .to-do-class-item button{
     position: absolute;
@@ -266,4 +271,8 @@
 }
 .text-center{
     text-align: center;
+}
+
+.modal-right .to-do-title-detail-div{
+    padding-bottom: 32px;
 }
