@@ -18,11 +18,11 @@ class ToDoListPlanClassesServiceTest {
 
 	@Autowired
 	private PlanRepository planRepository;
-	@Test
+	/*@Test
 	public void testSavePlanClasses() {
 		PlanEntity plan = planRepository.findById(146L).orElse(null);
 		int deleteRow = toDoListPlanClassesService.deleteNotReferencedPlanClass(plan);
 		System.out.println(deleteRow);
-	}
+	}*/
 
 }

@@ -68,6 +68,7 @@ export default function ToDoAddModal(props) {
                 }
             }//뭐... else면 오류 한번 띄워야겠지만... 일단 뭐..
         }).finally(() => {
+            props.setClassUpdateTrigger(!props.classUpdateTrigger);
             modalClose();
         })
     }

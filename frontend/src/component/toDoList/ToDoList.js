@@ -36,6 +36,7 @@ export default function ToDoList() {
     const [userAllClass, setUserAllClass] = useState([]);
     const [allSelected, setAllSelected] = useState(true);
     const [selectedClass, setSelectedClass] = useState([]);
+    const [classUpdateTrigger, setClassUpdateTrigger] = useState(false);
 
     const [listOption, setListOption] = useState(localStorage.getItem('option') || 'nce');
     const [listSort, setListSort] = useState(localStorage.getItem('sort') || 'name');
@@ -77,6 +78,8 @@ export default function ToDoList() {
                 setChildrenUpdateFunc={setChildrenUpdateFunc}
                 setDetailPlanId={setDetailPlanId} setMyLineUpdateFunc={setMyLineUpdateFunc}
                 listOption={listOption} listSort={listSort} ascDesc={ascDesc}
+                classUpdateTrigger={classUpdateTrigger}
+                setClassUpdateTrigger={setClassUpdateTrigger}
             />
 
             <ToDoModals
@@ -85,7 +88,8 @@ export default function ToDoList() {
                 parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
                 myLineUpdateFunc={myLineUpdateFunc}
                 detailPlanId={detailPlanId} planDetail={planDetail} setPlanDetail={setPlanDetail}
-                userAllClass={userAllClass}
+                userAllClass={userAllClass} classUpdateTrigger={classUpdateTrigger}
+                setClassUpdateTrigger={setClassUpdateTrigger}
             />
         </div>
     )

@@ -11,6 +11,7 @@ export default function ToDoItemRight(
         , rightExpand, expandRight, addChild
         , setPlanStatus, setUpdateTrigger
         , updateTrigger, parentChildren
+        , classUpdateTrigger, setClassUpdateTrigger
     }
 ) {
 
@@ -71,7 +72,8 @@ export default function ToDoItemRight(
         }
         <div className={'delete-button-div'}>
             <button className={'delete-button'}
-                    onClick={() => itemDelete(planItem, setUpdateTrigger, updateTrigger, parentChildren)}>
+                    onClick={() => itemDelete(planItem, setUpdateTrigger, updateTrigger
+                        , parentChildren,classUpdateTrigger,setClassUpdateTrigger)}>
                 <img src={deleteMark} alt="delete"/>
             </button>
             <br/>
@@ -98,7 +100,8 @@ const statusChange = async (planItem, setPlanStatus, changeStatus) => {
         }
     })
 }
-const itemDelete = async (planItem, setUpdateTrigger, updateTrigger, parentChildren) => {
+const itemDelete = async (planItem, setUpdateTrigger, updateTrigger
+                          , parentChildren,classUpdateTrigger,setClassUpdateTrigger) => {
     const authHeader = await getAuthHeader();
     axios.delete('/api/todo/delete/' + planItem.planId, {
         headers: {
@@ -108,10 +111,11 @@ const itemDelete = async (planItem, setUpdateTrigger, updateTrigger, parentChild
         if (res.status === 200) {
             if (planItem.depth === 1) {
                 setUpdateTrigger(!updateTrigger);
+                setClassUpdateTrigger(!classUpdateTrigger);
             } else {
                 parentChildren();
+                setClassUpdateTrigger(!classUpdateTrigger);
             }
-
         }
     })
 }

@@ -114,8 +114,9 @@ public class ToDoListPlanClassesService {
 	@Transactional
 	public int deleteNotReferencedPlanClass(PlanEntity planEntity) {
 		// List<PlanClassesEntity> thisPlanClassesList = planClassesRepository.findByPlan(planEntity); N+1 나올거 같아서 밑에거로
-		List<PlanClassesEntity> thisPlanClassesList = planClassesRepository.findWithPlanClassByPlan(planEntity);
+		// List<PlanClassesEntity> thisPlanClassesList= planClassesRepository.findWithPlanClassByPlan(planEntity);
 		// plan 만 지웠다고 plan_classes 까지 지워지지는 않고 있었음
+		List<PlanClassesEntity> thisPlanClassesList = planEntity.getPlanClasses();
 		planClassesRepository.deleteAll(thisPlanClassesList);
 		List<PlanClassEntity> toCheckClassList
 			= thisPlanClassesList.stream().map(PlanClassesEntity::getPlanClass).toList();

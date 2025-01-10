@@ -9,7 +9,8 @@ export default function ToDoModals
          updateTrigger, setUpdateTrigger,
          parentPlan, childrenUpdateFunc,
          myLineUpdateFunc, userAllClass,
-         planDetail, setPlanDetail
+         planDetail, setPlanDetail,
+         classUpdateTrigger, setClassUpdateTrigger
      }) {
 
     const renderModal = () => {
@@ -17,21 +18,28 @@ export default function ToDoModals
             case '1':
             case '2':
             case '3':
-                return <ToDoAddModal modalType={modalType} setModalType={setModalType}
-                                     updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
-                                     parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
-                                     userAllClass={userAllClass}
+                return <ToDoAddModal
+                    modalType={modalType} setModalType={setModalType}
+                    updateTrigger={updateTrigger} setUpdateTrigger={setUpdateTrigger}
+                    parentPlan={parentPlan} childrenUpdateFunc={childrenUpdateFunc}
+                    userAllClass={userAllClass}
+                    classUpdateTrigger={classUpdateTrigger}
+                    setClassUpdateTrigger={setClassUpdateTrigger}
                 />
             case 'detail':
-                return <ToDoDetailModal detailPlanId={detailPlanId}
-                                        planDetail={planDetail}
-                                        setPlanDetail={setPlanDetail}
-                                        setModalType={setModalType}
+                return <ToDoDetailModal
+                    detailPlanId={detailPlanId}
+                    planDetail={planDetail}
+                    setPlanDetail={setPlanDetail}
+                    setModalType={setModalType}
                 />
             case 'modify':
-                return <ToDoModifyModal planDetail={planDetail} setModalType={setModalType}
-                                        myLineUpdateFunc={myLineUpdateFunc}
-                                        userAllClass={userAllClass}
+                return <ToDoModifyModal
+                    planDetail={planDetail} setModalType={setModalType}
+                    myLineUpdateFunc={myLineUpdateFunc}
+                    userAllClass={userAllClass}
+                    classUpdateTrigger={classUpdateTrigger}
+                    setClassUpdateTrigger={setClassUpdateTrigger}
                 />
             default:
                 return ''

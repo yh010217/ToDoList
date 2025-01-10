@@ -12,7 +12,7 @@ import ToDoModalClassesTr from "../common/ToDoModalClassesTr";
 export default function ToDoModifyModal
     ({
          planDetail, setModalType, myLineUpdateFunc
-         , userAllClass
+         , userAllClass, classUpdateTrigger, setClassUpdateTrigger
      }) {
 
     const modalClose = function () {
@@ -46,7 +46,10 @@ export default function ToDoModifyModal
 
 
     const todoModify = async () => {
-        if(title === ''){alert('제목을 입력해주세요.'); return;}
+        if (title === '') {
+            alert('제목을 입력해주세요.');
+            return;
+        }
         const authHeader = await getAuthHeader();
         await axios.post('/api/todo/modify', {
             planId: planDetail.planId
@@ -65,6 +68,7 @@ export default function ToDoModifyModal
         }).catch(error => {
             console.error('update 실패 : ', error);
         }).finally(() => {
+            setClassUpdateTrigger(!classUpdateTrigger);
             modalClose();
         })
     }

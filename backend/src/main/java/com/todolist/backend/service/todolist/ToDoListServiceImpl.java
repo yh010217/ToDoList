@@ -128,7 +128,7 @@ public class ToDoListServiceImpl implements ToDoListService {
 	@Override
 	@Transactional
 	public String deletePlan(Long planId, Long uid) {
-		PlanEntity planEntity = planRepository.findById(planId).orElse(null);
+		PlanEntity planEntity = planRepository.findWithClassesById(planId);
 		if (planEntity != null && planEntity.getUser().getUid().equals(uid)) {
 			planRepository.delete(planEntity);
 			toDoListPlanClassesService.deleteNotReferencedPlanClass(planEntity);

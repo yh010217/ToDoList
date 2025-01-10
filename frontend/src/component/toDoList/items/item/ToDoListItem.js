@@ -4,15 +4,19 @@ import axios from "axios";
 import {getAuthHeader} from "../../../../utils/auth";
 import ToDoItemLeft from "./item_left/ToDoItemLeft";
 import ToDoItemRight from "./item_right/ToDoItemRight";
+import {filterBySelectedClass} from "../func/filterBySelectedClass";
 
-export default function ToDoListItem({
-                                         planItem, setParentPlan, setModalType
-                                         , updateTrigger, setUpdateTrigger
-                                         , setChildrenUpdateFunc
-                                         , parentChildren, setDetailPlan
-                                         , setMyLineUpdateFunc, parentChildrenFunc
-                                         , listOption, listSort, ascDesc
-                                     }) {
+export default function ToDoListItem
+    ({
+         planItem, setParentPlan, setModalType
+         , updateTrigger, setUpdateTrigger
+         , setChildrenUpdateFunc
+         , parentChildren, setDetailPlan
+         , setMyLineUpdateFunc, parentChildrenFunc
+         , listOption, listSort, ascDesc
+         , selectedClass, allSelected, filterSelectedMap
+         , classUpdateTrigger, setClassUpdateTrigger
+     }) {
 
     const [planStatus, setPlanStatus] = useState(planItem.status);
     const [childrenOpen, setChildrenOpen] = useState(false);
@@ -98,12 +102,14 @@ export default function ToDoListItem({
                     setDetailPlan={setDetailPlan} setMyLineUpdateFunc={setMyLineUpdateFunc}
                     parentChildrenFunc={parentChildrenFunc} setUpdateTrigger={setUpdateTrigger}
                     updateTrigger={updateTrigger} parentChildren={parentChildren}
+                    classUpdateTrigger={classUpdateTrigger}
+                    setClassUpdateTrigger={setClassUpdateTrigger}
                 />
 
             </div>
             <div>
                 {
-                    childrenItems.map(item =>
+                    childrenItems.filter(item => filterBySelectedClass(item, allSelected, filterSelectedMap)).map(item =>
                         <ToDoListItem
                             key={item.planId} planItem={item}
                             setParentPlan={setParentPlan} setModalType={setModalType}
@@ -112,6 +118,10 @@ export default function ToDoListItem({
                             setDetailPlan={setDetailPlan} setMyLineUpdateFunc={setMyLineUpdateFunc}
                             parentChildrenFunc={() => childrenAxios(planItem, listOption, listSort, ascDesc, setChildrenItems)}
                             listOption={listOption} listSort={listSort} ascDesc={ascDesc}
+                            selectedClass={selectedClass} allSelected={allSelected}
+                            filterSelectedMap={filterSelectedMap}
+                            classUpdateTrigger={classUpdateTrigger}
+                            setClassUpdateTrigger={setClassUpdateTrigger}
                         />)
                 }
             </div>

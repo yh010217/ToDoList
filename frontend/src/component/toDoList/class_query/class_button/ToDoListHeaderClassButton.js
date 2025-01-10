@@ -26,8 +26,10 @@ export default function ToDoListHeaderClassButton
     useEffect(() => {
         if (allSelected) setIsSelected(allSelected); // true로 바뀔 때만 영향 받을거임
     }, [allSelected])
+
     useEffect(() => {
         if(selectedClass.length === 0) return;
+        if(!selectedClass.find(item => item.classId === classItem.classId))return;
         setIsSelected(selectedClass.find(item => item.classId === classItem.classId).selected);
     }, [selectedClass]);
 
