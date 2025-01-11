@@ -46,6 +46,33 @@
     font-size: 18px;
 }
 
+.to-do-header-classes{
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: start;
+    padding: 4px 24px;
+}
+.header-class-all-select-div{
+    padding-top: 12px;
+    margin-right: 12px;
+    flex-grow: 0;
+}
+.header-class-classes{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+    padding: 12px 0;
+    flex-grow: 1;
+}
+.to-do-class-header-button{
+    font-family: Jua;
+    padding: 8px 8px 4px 8px;
+    cursor: pointer;
+}
+#to-do-class-all-btn{
+    min-width: 80px;
+}
+
 .plan-items{
-    padding: 24px;
+    padding: 0 24px 24px 24px;
 }

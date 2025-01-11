@@ -1,6 +1,8 @@
 package com.todolist.backend.domain;
 
 
+import java.util.Objects;
+
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,4 +50,18 @@ public class UserEntity {
         this.role = role;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        UserEntity that = (UserEntity)o;
+        return Objects.equals(uid, that.uid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uid);
+    }
 }

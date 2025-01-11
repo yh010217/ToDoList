@@ -1,12 +1,13 @@
 package com.todolist.backend.config;
 
-import com.todolist.backend.jwt.CustomLogoutFilter;
-import com.todolist.backend.jwt.JWTFilter;
-import com.todolist.backend.jwt.JWTUtil;
-import com.todolist.backend.jwt.LoginFilter;
-import com.todolist.backend.oauth.CustomOAuth2SuccessHandler;
-import com.todolist.backend.oauth.CustomOAuth2UserService;
-import com.todolist.backend.repository.user.RefreshRepository;
+import com.todolist.backend.controller.jwt.CustomLogoutFilter;
+import com.todolist.backend.controller.jwt.JWTFilter;
+import com.todolist.backend.controller.jwt.JWTUtil;
+import com.todolist.backend.controller.jwt.LoginFilter;
+import com.todolist.backend.controller.oauth.CustomOAuth2SuccessHandler;
+import com.todolist.backend.controller.oauth.CustomOAuth2UserService;
+import com.todolist.backend.service.user.UserService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -28,17 +28,11 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
-
-    private final RefreshRepository refreshRepository;
+    private final UserService userService;
 
     private final CustomOAuth2UserService customOAuth2UserService;
 
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
-
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -83,11 +77,11 @@ public class SecurityConfig {
 
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)
-                                , jwtUtil, refreshRepository)
+                                , jwtUtil, userService)
                         , UsernamePasswordAuthenticationFilter.class);
 
         http
-                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository)
+                .addFilterBefore(new CustomLogoutFilter(userService)
                         , LogoutFilter.class);
 
 

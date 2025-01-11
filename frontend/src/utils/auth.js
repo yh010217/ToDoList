@@ -1,34 +1,33 @@
 import {jwtDecode} from "jwt-decode";
 import axios from "axios";
 
-//이미 토큰에는 Bearer 가 붙어있는 상태
-
-export const isTokenValid = (token) => {
-    if (!token) return false;
-    //Bearer 가 붙어있어도 잘 작동함
-    let decodedToken;
-    try {
-        decodedToken = jwtDecode(token);
-    }catch (error){
-        console.log('jwt decode 중 에러 : ',error);
-    }
-    console.log('isTokenValid : ', decodedToken);
-    return decodedToken.exp * 1000 > Date.now(); // 만료 시간 체크
-}
+let isFetchingToken = false;
+let pendingTokenPromise = null;
 
 export const getAuthHeader = async () => {
     const originalToken = localStorage.getItem('auth');
-    if(originalToken && isTokenValid(originalToken)){
+    if (originalToken && isTokenValid(originalToken)) {
         return originalToken;
-    }else{
-        const token = await getNewToken();
-        if (token && isTokenValid(token)) {
-            localStorage.setItem('auth',token);
-            return token;
-        }else{
-            return null;
-        }
     }
+
+    if (isFetchingToken) {
+        return pendingTokenPromise;
+    }
+    isFetchingToken = true;
+    pendingTokenPromise = getNewToken()
+        .then((token) => {
+            if (token && isTokenValid(token)) {
+                localStorage.setItem('auth', token);
+                return token;
+            } else {
+                return null;
+            }
+        })
+        .finally(() => {
+            isFetchingToken = false;
+            pendingTokenPromise = null;
+        })
+    return pendingTokenPromise;
 
 }
 
@@ -40,6 +39,7 @@ export const getAuthHeader = async () => {
  * </pre>
  * */
 const getNewToken = async () => {
+    console.log('getNewToken function');
     try {
         const res = await axios.post('/api/login/reissue');
         if (res.status === 200) {
@@ -48,7 +48,9 @@ const getNewToken = async () => {
             } else {
                 throw new Error('new token fail');
             }
-        } else {
+        } else if(res.status === 204){
+            console.log('로그인 안된 상태');
+        }else {
             throw new Error('status not ok');
         }
     } catch (error) {
@@ -58,13 +60,17 @@ const getNewToken = async () => {
     }
 }
 
-export const tokenLogout = () => {
-    localStorage.removeItem('auth');
-    //리프레시 토큰이 있을 때는 서버에 axios 로 삭제해달라고 요청넣기
-    axios.post('/api/logout')
-        .then(res => {
-            console.log(res);
-        })
-}
 
+//이미 토큰에는 Bearer 가 붙어있는 상태
+
+export const isTokenValid = (token) => {
+    if (!token) return false;
+    let decodedToken;
+    try {
+        decodedToken = jwtDecode(token);
+    } catch (error) {
+        console.log('jwt decode 중 에러 : ', error);
+    }
+    return decodedToken.exp * 1000 > Date.now(); // 만료 시간 체크
+}
 
