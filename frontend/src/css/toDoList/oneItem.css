@@ -43,13 +43,17 @@
 }
 
 .plan-title{
-    padding-left: 32px;
+    font-family: Jua;
+    margin-left: 32px;
     font-size: 24px;
-    padding-top : 20px;
+    margin-top : 20px;
     display: inline-block;
+    border: none;
+    background-color: rgba(0,0,0,0);
+    cursor: pointer;
 }
 .item-depth-3 .plan-title{
-    padding-left: 4px;
+    margin-left: 4px;
 }
 
 .plan-right{
