@@ -1,8 +1,8 @@
 import '../../css/signUp.css'
-import IdSignUp from "./IdSignUp";
-import PWDSignUp from "./PWDSignUp";
-import EmailSignUp from "./EmailSignUp";
-import NicknameSignUp from "./NicknameSignUp";
+import IdSignUp from "./inputs/IdSignUp";
+import PWDSignUp from "./inputs/PWDSignUp";
+import EmailSignUp from "./inputs/EmailSignUp";
+import NicknameSignUp from "./inputs/NicknameSignUp";
 import axios from "axios";
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
@@ -58,7 +58,6 @@ export default function SignUp() {
                 <div className={'signup-contents'}>
                     <form onSubmit={handleSubmit}>
                         <ul>
-
                             <IdSignUp loginId={loginId} setLoginId={setLoginId}
                             setIdAble={setIdAble}/>
 

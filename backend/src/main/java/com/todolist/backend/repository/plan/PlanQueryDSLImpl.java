@@ -4,115 +4,128 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.todolist.backend.domain.PlanEntity;
+
 import static com.todolist.backend.domain.QPlanEntity.planEntity;
+
 import com.todolist.backend.domain.UserEntity;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @RequiredArgsConstructor
-public class PlanQueryDSLImpl implements PlanQueryDSL{
+public class PlanQueryDSLImpl implements PlanQueryDSL {
 
-    private final JPAQueryFactory queryFactory;
+	private final JPAQueryFactory queryFactory;
 
-    /*필요하면 EntityManager 가져오기*/
-    // @PersistenceContext
-    // private final EntityManager entityManager;
+	/*필요하면 EntityManager 가져오기*/
+	// @PersistenceContext
+	// private final EntityManager entityManager;
 
-    /** 조건까지 붙여서 받아올 수 있게하기 */
-    @Override
-    public List<PlanEntity> getToDoList(UserEntity tempUser, Integer depth, PlanEntity parentPlan) {
+	/** 조건까지 붙여서 받아올 수 있게하기 */
+	@Override
+	public List<PlanEntity> getToDoList(UserEntity tempUser, Integer depth, PlanEntity parentPlan) {
 
-        //일단 깊이는 모두가 조건식으로 들어갈거니깐...
-        BooleanExpression listRange = planEntity.depth.eq(depth);
-        if(depth != 1){
-            listRange = listRange.and(planEntity.parentPlan.eq(parentPlan));
-        }
-        List<PlanEntity> toDoList =
-                queryFactory.select(planEntity)
-                        .from(planEntity)
-                        .where(listRange)
-                        .orderBy(planEntity.deadline.asc())
-                        .fetch();
+		//일단 깊이는 모두가 조건식으로 들어갈거니깐...
+		BooleanExpression listRange = planEntity.depth.eq(depth);
+		if (depth != 1) {
+			listRange = listRange.and(planEntity.parentPlan.eq(parentPlan));
+		}
+		List<PlanEntity> toDoList =
+			queryFactory.select(planEntity)
+				.from(planEntity)
+				.where(listRange)
+				.orderBy(planEntity.deadline.asc())
+				.fetch();
 
-        return toDoList;
-    }
+		return toDoList;
+	}
 
-    @Override
-    public List<PlanEntity> getToDoListByCondition(UserEntity tempUser, int depth
-            , PlanEntity parentPlan, String option, String sort, String asc) {
+	@Override
+	public List<PlanEntity> getToDoListByCondition(UserEntity user, int depth
+		, PlanEntity parentPlan, String option, String sort, String asc) {
 
-        //일단 깊이는 모두가 조건식으로 들어갈거니깐...
-        BooleanExpression listRange = planEntity.depth.eq(depth)
-                .and(planEntity.user.eq(tempUser));
-        if(depth != 1){
-            listRange = listRange.and(planEntity.parentPlan.eq(parentPlan));
-        }
+		BooleanExpression listRange = getCondition(user, depth, parentPlan, option);
 
-        switch (option){
-            case "nc" :
-                listRange = listRange.and(planEntity.status.eq(0)
-                        .or(planEntity.status.eq(1)));
-                break;
-            case "ne" :
-                listRange = listRange.and(planEntity.status.eq(0)
-                        .or(planEntity.status.eq(2)));
-                break;
-            case "ce" :
-                listRange = listRange.and(planEntity.status.eq(1)
-                        .or(planEntity.status.eq(2)));
-                break;
-            case "n" :
-                listRange = listRange.and(planEntity.status.eq(0));
-                break;
-            case "c" :
-                listRange = listRange.and(planEntity.status.eq(1));
-                break;
-            case "e" :
-                listRange = listRange.and(planEntity.status.eq(2));
-                break;
-            default:
-                break;
-        }
+		OrderSpecifier<?> orderSpecifier = getOrderSpecifier(sort, asc);
 
-        OrderSpecifier<?> orderSpecifier = null;
+		List<PlanEntity> toDoList =
+			queryFactory.select(planEntity)
+				.from(planEntity)
+				.leftJoin(planEntity.planClasses).fetchJoin()
+				.where(listRange)
+				.orderBy(orderSpecifier)
+				.fetch();
 
-        switch (sort) {
-            case "deadline":
-                if (asc.equals("asc")) {
-                    orderSpecifier = planEntity.deadline.asc();
-                } else {
-                    orderSpecifier = planEntity.deadline.desc();
-                }
-                break;
-            case "name":
-                if (asc.equals("asc")) {
-                    orderSpecifier = planEntity.planTitle.asc();
-                } else {
-                    orderSpecifier = planEntity.planTitle.desc();
-                }
-                break;
-            case "status":
-                if (asc.equals("asc")) {
-                    orderSpecifier = planEntity.status.asc();
-                } else {
-                    orderSpecifier = planEntity.status.desc();
-                }
-                break;
-            default:
-                break;
-        }
+		return toDoList;
+	}
 
-        List<PlanEntity> toDoList =
-                queryFactory.select(planEntity)
-                        .from(planEntity)
-                        .where(listRange)
-                        .orderBy(orderSpecifier)
-                        .fetch();
+	private BooleanExpression getCondition(UserEntity user, int depth, PlanEntity parentPlan, String option) {
 
-        return toDoList;
-    }
+		//일단 깊이는 모두가 조건식으로 들어갈거니깐...
+		BooleanExpression listRange = planEntity.depth.eq(depth)
+			.and(planEntity.user.eq(user));
+		if (depth != 1) {
+			listRange = listRange.and(planEntity.parentPlan.eq(parentPlan));
+		}
+
+		switch (option) {
+			case "nc":
+				listRange = listRange.and(planEntity.status.eq(0)
+					.or(planEntity.status.eq(1)));
+				break;
+			case "ne":
+				listRange = listRange.and(planEntity.status.eq(0)
+					.or(planEntity.status.eq(2)));
+				break;
+			case "ce":
+				listRange = listRange.and(planEntity.status.eq(1)
+					.or(planEntity.status.eq(2)));
+				break;
+			case "n":
+				listRange = listRange.and(planEntity.status.eq(0));
+				break;
+			case "c":
+				listRange = listRange.and(planEntity.status.eq(1));
+				break;
+			case "e":
+				listRange = listRange.and(planEntity.status.eq(2));
+				break;
+			default:
+				break;
+		}
+
+		return listRange;
+	}
+
+	private OrderSpecifier<?> getOrderSpecifier(String sort, String asc) {
+		OrderSpecifier<?> orderSpecifier = null;
+		switch (sort) {
+			case "deadline":
+				if (asc.equals("asc")) {
+					orderSpecifier = planEntity.deadline.asc();
+				} else {
+					orderSpecifier = planEntity.deadline.desc();
+				}
+				break;
+			case "name":
+				if (asc.equals("asc")) {
+					orderSpecifier = planEntity.planTitle.asc();
+				} else {
+					orderSpecifier = planEntity.planTitle.desc();
+				}
+				break;
+			case "status":
+				if (asc.equals("asc")) {
+					orderSpecifier = planEntity.status.asc();
+				} else {
+					orderSpecifier = planEntity.status.desc();
+				}
+				break;
+			default:
+				break;
+		}
+		return orderSpecifier;
+	}
 
 }
