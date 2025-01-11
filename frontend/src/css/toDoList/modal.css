@@ -276,3 +276,12 @@
 .modal-right .to-do-title-detail-div{
     padding-bottom: 32px;
 }
+
+.to-do-memo-detail{
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.to-do-memo-detail-pre{
+    width: 300px;
+    font-family: Jua;
+}

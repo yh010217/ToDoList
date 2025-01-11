@@ -18,7 +18,7 @@ export default function ToDoDetailModal({
     const [classes, setClasses] = useState([]);
 
     useEffect(() => {
-        getDetailAxios(detailPlanId,setPlanDetail,setClasses,setDeadline,navigate);
+        getDetailAxios(detailPlanId, setPlanDetail, setClasses, setDeadline, navigate);
     }, [])
 
 
@@ -111,8 +111,10 @@ export default function ToDoDetailModal({
                         <td className={'modal-left'}><label htmlFor={"to-do-memo"}>메모</label></td>
                         <td className={'modal-right'}>
                             <div
-                                className={(planDetail.memo === '' ? 'text-center gray-text ' : 'black-text') + 'to-do-memo-detail'}>
+                                className={(planDetail.memo === '' ? 'text-center gray-text ' : 'black-text ') + 'to-do-memo-detail'}>
+                                {/*<pre className={'to-do-memo-detail-pre'}>*/}
                                 {planDetail.memo === '' ? '메모가 없습니다' : planDetail.memo}
+                                {/*</pre>*/}
                             </div>
                         </td>
                     </tr>
@@ -130,7 +132,7 @@ export default function ToDoDetailModal({
     </>
 }
 
-const getDetailAxios = async (detailPlanId,setPlanDetail,setClasses,setDeadline,navigate) => {
+const getDetailAxios = async (detailPlanId, setPlanDetail, setClasses, setDeadline, navigate) => {
     const authHeader = await getAuthHeader();
 
     if (authHeader) {
