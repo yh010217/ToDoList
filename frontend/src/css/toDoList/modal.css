@@ -8,7 +8,7 @@
     border-radius: 24px;
     background-color: rgba(100,100,100,0.4);
     text-align: center;
-    z-index: 20;
+    z-index: 40;
 }
 
 .modal-white{
@@ -113,6 +113,7 @@
 
 .to-do-class-div{
     display: flex;
+    position: relative;
 }
 #to-do-class{
     flex-grow: 1;
@@ -147,8 +148,13 @@
     border: 1px solid rgba(0,0,0,0.2);
     background-color: #FFEFE9;
     box-shadow: 3px 3px 2px 0 #eeeeee;
-    padding: 8px 30px 4px 8px;
     border-radius: 8px;
+}
+.to-do-class-modifying{
+    padding: 8px 30px 4px 8px;
+}
+.to-do-class-detail{
+    padding: 8px 8px 4px 8px;
 }
 .to-do-class-item button{
     position: absolute;
@@ -265,4 +271,17 @@
 }
 .text-center{
     text-align: center;
+}
+
+.modal-right .to-do-title-detail-div{
+    padding-bottom: 32px;
+}
+
+.to-do-memo-detail{
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.to-do-memo-detail-pre{
+    width: 300px;
+    font-family: Jua;
 }

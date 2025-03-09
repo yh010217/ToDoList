@@ -7,7 +7,10 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
+import com.todolist.backend.domain.PlanClassesEntity;
 
 @Getter
 @Setter
@@ -15,7 +18,7 @@ import java.util.List;
 @ToString
 public class ToDoListDTO {
     private String title;
-    private LocalDateTime deadline;
+    private String deadline;
     private List<String> classes;
     private Integer depth;
     private String memo;

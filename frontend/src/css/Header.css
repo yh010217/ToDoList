@@ -1,7 +1,8 @@
 .header-div{
+    width: 86%;
     max-width: 1156px;
     min-width: 780px;
-    margin : 8px auto 128px;
+    margin : 56px auto 128px;
     padding-bottom: 8px;
     position: relative;
     text-align: center;

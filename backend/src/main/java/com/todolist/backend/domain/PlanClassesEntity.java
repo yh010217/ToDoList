@@ -30,6 +30,7 @@ public class PlanClassesEntity {
     @JoinColumn(name = "plan_id")
     private PlanEntity plan;
 
+
     @Builder
     public PlanClassesEntity(PlanClassEntity planClass, PlanEntity plan, String className) {
         this.planClass = planClass;

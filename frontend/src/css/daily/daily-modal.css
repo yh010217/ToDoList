@@ -1,0 +1,28 @@
+
+#daily-modal-input{
+    width: 60%;
+    display: block;
+    margin: 16px auto;
+    padding-bottom: 4px;
+}
+
+.daily-modal-input-button{
+    display: block;
+    margin: 0 auto;
+    background-color: #24BDF9;
+    color: white;
+
+    font-family: Jua;
+    font-size: 18px;
+    font-weight: 900;
+    /*bottom: -24px;*/
+    width: 72px;
+    height: 38px;
+    border-radius: 10px;
+    border: none;
+    -webkit-text-stroke: 0.5px rgba(0,0,0,0.7);
+    box-shadow: 2px 2px 2px 0 rgba(0,0,0,0.2);
+    cursor: pointer;
+    box-sizing: border-box;
+    padding-top: 2px;
+}
